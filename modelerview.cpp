@@ -3,6 +3,7 @@
 #include "bitmap.h"
 #include "modelerapp.h"
 #include "particleSystem.h"
+#include "modelerglobals.h"
 
 #include <FL/Fl.H>
 #include <FL/Fl_Gl_Window.h>
@@ -112,6 +113,19 @@ void ModelerView::draw()
 	glLoadIdentity();
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_camera->applyViewingTransform();
+
+
+    // ADDED
+    lightPosition0[0] = VAL(LIGHT0_X);
+    lightPosition0[1] = VAL(LIGHT0_Y);
+    lightPosition0[2] = VAL(LIGHT0_Z);
+
+    lightDiffuse0[0] = VAL(LIGHT0_R);
+    lightDiffuse0[1] = VAL(LIGHT0_G);
+    lightDiffuse0[2] = VAL(LIGHT0_B);
+
+    // END
+
 
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition0 );
     glLightfv( GL_LIGHT0, GL_DIFFUSE, lightDiffuse0 );

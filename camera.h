@@ -81,6 +81,18 @@ public:
     { mLookAt = lookAt; mDirtyTransform = true; }
     inline Vec3f getLookAt() const
     { return mLookAt; }
+
+    inline void frameAll(const float dx, const float dy, const float dz) {
+        mPosition = Vec3f(2.100001f + dx, 5.363258f + dy, 23.890703f + dz);
+        mLookAt = Vec3f(2.099999f + dx, 0.529236f + dy, -0.107282f + dz);
+        mUpVector = Vec3f(0.0f, 1.0f, 0.0f);
+        mAzimuth = 3.019369f;
+        mElevation = 0.200000f;
+        mDolly = -24.479996f;
+        mTwist = 0.000000f;
+        mDirtyTransform = false;
+        lookAt(mPosition, mLookAt, mUpVector);
+    }
     
     //---[ Interactive Adjustment ]------------------------
     // these should be used from a mouse event handling routine that calls
@@ -109,6 +121,19 @@ public:
 	bool saveKeyframes(const char* szFileName) const;
 	bool loadKeyframes(const char* szFileName);
 	float keyframeTime(int keyframe) const;
+
+
+    // gluLookAt equivalent
+    void lookAt(Vec3f eye, Vec3f at, Vec3f up);
+
 };
+
+
+void MakeDiagonal(Mat4f &m, float k);
+void MakeHScale(Mat4f &m, const Vec3f &s);
+void MakeHTrans(Mat4f &m, const Vec3f &s);
+void MakeHRotX(Mat4f &m, float theta);
+void MakeHRotY(Mat4f &m, float theta);
+void MakeHRotZ(Mat4f &m, float theta);
 
 #endif
