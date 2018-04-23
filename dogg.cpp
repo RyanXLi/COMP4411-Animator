@@ -712,7 +712,7 @@ void DoggModel::draw()
 		}
 
 	glPopMatrix();
-
+    endDraw();
 }
 
 
