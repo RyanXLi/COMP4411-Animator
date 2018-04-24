@@ -108,6 +108,9 @@
     <ClCompile Include="catmullRomEvaluator.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
+    <ClCompile Include="C2CurveEvaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h">
@@ -180,6 +183,12 @@
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
     <ClInclude Include="CatmullRomEvaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="C2CurveEvaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="CurveGlobals.h">
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
   </ItemGroup>
