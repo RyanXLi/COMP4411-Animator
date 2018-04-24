@@ -9,6 +9,6 @@ public:
         std::vector<Point>& ptvEvaluatedCurvePts,
         const float& fAniLength,
         const bool& bWrap) const;
-    void drawBezierSegment(Point p1, Point p2, Point p3, Point p4, std::vector<Point>& ptvEvaluatedCurvePts) const;
+    static void drawBezierSegment(Point p1, Point p2, Point p3, Point p4, std::vector<Point>& ptvEvaluatedCurvePts);
 };
 

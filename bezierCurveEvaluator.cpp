@@ -16,16 +16,6 @@ void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
     //for (int i = 0; i < iCtrlPtCount; i++) {
     //    std::cout << i << "th: " << ptvCtrlPts[i].x << ", " << ptvCtrlPts[i].y << std::endl;
     //}
-
-    
-    float step = STEP;
-    Eigen::Matrix<float, 4, 4> m_b;   
-    m_b <<  -1, 3, -3, 1,
-            3, -6, 3, 0,
-            -3, 3, 0, 0,
-            1, 0, 0, 0;
-
-    Eigen::Matrix<float, 4, 2> g_b;
     
     int i;
     for (i = 0; i <= iCtrlPtCount - 4; i+=3) {
@@ -34,30 +24,7 @@ void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
         Point p3 = ptvCtrlPts[i+2];
         Point p4 = ptvCtrlPts[i+3];
 
-        g_b << p1.x, p1.y,
-            p2.x, p2.y,
-            p3.x, p3.y,
-            p4.x, p4.y;
-
-        Eigen::Matrix<float, 1, 4> m_t;
-        Eigen::Matrix<float, 1, 2> m_point;
-
-        for (int j = 0; j < 1/step; ++j) {
-            float t = j * step;
-            m_t << t*t*t, t*t, t, 1;
-            m_point = m_t * m_b * g_b;
-
-            Point point = { m_point(0,0), m_point(0,1) };
-            ptvEvaluatedCurvePts.push_back(point);
-        }
-
-        //m_t << 1, 1, 1, 1;
-        //Eigen::Matrix<float, 1, 4> result = m_t * m_b;
-        //std::cout << result(0, 0) << ", ";
-        //std::cout << result(0, 1) << ", ";
-        //std::cout << result(0, 2) << ", ";
-        //std::cout << result(0, 3) << ", ";
-        //std::cout << std::endl;
+        drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
 
     }
 
@@ -69,25 +36,12 @@ void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
         Point p4 = ptvCtrlPts[0];
         p4.x += fAniLength;
 
-        g_b << p1.x, p1.y,
-            p2.x, p2.y,
-            p3.x, p3.y,
-            p4.x, p4.y;
+        drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
 
-        Eigen::Matrix<float, 1, 4> m_t;
-        Eigen::Matrix<float, 1, 2> m_point;
-
-        for (int j = 0; j < 1 / step; ++j) {
-            float t = j * step;
-            m_t << t*t*t, t*t, t, 1;
-            m_point = m_t * m_b * g_b;
-
-            if (m_point(0, 0) > fAniLength) {
-                m_point(0, 0) -= fAniLength;
+        for (int k = 0; k < ptvEvaluatedCurvePts.size(); k++) {
+            if (ptvEvaluatedCurvePts[k].x > fAniLength) {
+                ptvEvaluatedCurvePts[k].x -= fAniLength;
             }
-
-            Point point = { m_point(0,0), m_point(0,1) };
-            ptvEvaluatedCurvePts.push_back(point);
         }
     }
     else {
@@ -140,7 +94,7 @@ void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
 
 
 void BezierCurveEvaluator::drawBezierSegment(Point p1, Point p2, Point p3, Point p4,
-    std::vector<Point>& ptvEvaluatedCurvePts) const {
+    std::vector<Point>& ptvEvaluatedCurvePts) {
 
     float step = STEP;
     Eigen::Matrix<float, 4, 4> m_b;
