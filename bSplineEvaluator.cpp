@@ -1,6 +1,7 @@
 #include "bSplineEvaluator.h"
 #include <Eigen/Dense>
 #include <iostream>
+
 #include "BezierCurveEvaluator.h"
 
 void BSplineEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
@@ -18,23 +19,138 @@ void BSplineEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
     //}
 
     int i;
-    for (i = 0; i <= iCtrlPtCount - 4; i += 3) {
-        Point p1 = ptvCtrlPts[i];
-        Point p2 = ptvCtrlPts[i + 1];
-        Point p3 = ptvCtrlPts[i + 2];
-        Point p4 = ptvCtrlPts[i + 3];
+    for (i = 0; i <= iCtrlPtCount - 4; i += 1) {
+        Point b1 = ptvCtrlPts[i];
+        Point b2 = ptvCtrlPts[i + 1];
+        Point b3 = ptvCtrlPts[i + 2];
+        Point b4 = ptvCtrlPts[i + 3];
+
+        Eigen::Matrix<float, 4, 2> b_matrix;
+        b_matrix << b1.x, b1.y,
+            b2.x, b2.y,
+            b3.x, b3.y,
+            b4.x, b4.y;
+
+        Eigen::Matrix<float, 4, 4> transformMatrix;
+        transformMatrix << 1, 4, 1, 0,
+            0, 4, 2, 0,
+            0, 2, 4, 0,
+            0, 1, 4, 1;
+
+        Eigen::Matrix<float, 4, 2> v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+        Point p1 = { v_matrix(0, 0), v_matrix(0, 1) };
+        Point p2 = { v_matrix(1, 0), v_matrix(1, 1) };
+        Point p3 = { v_matrix(2, 0), v_matrix(2, 1) };
+        Point p4 = { v_matrix(3, 0), v_matrix(3, 1) };
 
         BezierCurveEvaluator::drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
 
     }
 
-    if (bWrap && iCtrlPtCount - i == 3) {
-        // if we only need 1 extra pt to get a bezier curve
-        Point p1 = ptvCtrlPts[i];
-        Point p2 = ptvCtrlPts[i + 1];
-        Point p3 = ptvCtrlPts[i + 2];
-        Point p4 = ptvCtrlPts[0];
-        p4.x += fAniLength;
+    //std::cout << "i: " << i << std::endl;
+    //std::cout << "iCtrlPtCount: " << iCtrlPtCount << std::endl;
+
+    if (bWrap) {
+        // wrapping: add phatom control point at the end with y of the first control point
+        Eigen::Matrix<float, 4, 2> b_matrix;
+        Eigen::Matrix<float, 4, 4> transformMatrix;
+        Eigen::Matrix<float, 4, 2> v_matrix;
+        Point b1, b2, b3, b4, p1, p2, p3, p4;
+
+        // segment 1
+        b1 = ptvCtrlPts[i];
+        b2 = ptvCtrlPts[i + 1];
+        b3 = ptvCtrlPts[i + 2];
+        b4 = ptvCtrlPts[0];
+        b4.x += fAniLength;
+
+
+        
+        b_matrix << b1.x, b1.y,
+            b2.x, b2.y,
+            b3.x, b3.y,
+            b4.x, b4.y;
+
+        
+        transformMatrix << 1, 4, 1, 0,
+            0, 4, 2, 0,
+            0, 2, 4, 0,
+            0, 1, 4, 1;
+
+        v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+        p1 = { v_matrix(0, 0), v_matrix(0, 1) };
+        p2 = { v_matrix(1, 0), v_matrix(1, 1) };
+        p3 = { v_matrix(2, 0), v_matrix(2, 1) };
+        p4 = { v_matrix(3, 0), v_matrix(3, 1) };
+
+        BezierCurveEvaluator::drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+
+        for (int k = 0; k < ptvEvaluatedCurvePts.size(); k++) {
+            if (ptvEvaluatedCurvePts[k].x > fAniLength) {
+                ptvEvaluatedCurvePts[k].x -= fAniLength;
+            }
+        }
+
+        // segment 2
+        b1 = ptvCtrlPts[i + 1];
+        b2 = ptvCtrlPts[i + 2];
+        b3 = ptvCtrlPts[0];
+        b3.x += fAniLength;
+        b4 = ptvCtrlPts[1];
+        b4.x += fAniLength;
+
+        b_matrix << b1.x, b1.y,
+            b2.x, b2.y,
+            b3.x, b3.y,
+            b4.x, b4.y;
+
+        transformMatrix << 1, 4, 1, 0,
+            0, 4, 2, 0,
+            0, 2, 4, 0,
+            0, 1, 4, 1;
+
+        v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+        p1 = { v_matrix(0, 0), v_matrix(0, 1) };
+        p2 = { v_matrix(1, 0), v_matrix(1, 1) };
+        p3 = { v_matrix(2, 0), v_matrix(2, 1) };
+        p4 = { v_matrix(3, 0), v_matrix(3, 1) };
+
+        BezierCurveEvaluator::drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+
+        for (int k = 0; k < ptvEvaluatedCurvePts.size(); k++) {
+            if (ptvEvaluatedCurvePts[k].x > fAniLength) {
+                ptvEvaluatedCurvePts[k].x -= fAniLength;
+            }
+        }
+
+        // segment 3
+        b1 = ptvCtrlPts[i + 2];
+        b2 = ptvCtrlPts[0];
+        b2.x += fAniLength;
+        b3 = ptvCtrlPts[1];
+        b3.x += fAniLength;
+        b4 = ptvCtrlPts[2];
+        b4.x += fAniLength;
+
+        b_matrix << b1.x, b1.y,
+            b2.x, b2.y,
+            b3.x, b3.y,
+            b4.x, b4.y;
+
+        transformMatrix << 1, 4, 1, 0,
+            0, 4, 2, 0,
+            0, 2, 4, 0,
+            0, 1, 4, 1;
+
+        v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+        p1 = { v_matrix(0, 0), v_matrix(0, 1) };
+        p2 = { v_matrix(1, 0), v_matrix(1, 1) };
+        p3 = { v_matrix(2, 0), v_matrix(2, 1) };
+        p4 = { v_matrix(3, 0), v_matrix(3, 1) };
 
         BezierCurveEvaluator::drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
 
@@ -45,48 +161,8 @@ void BSplineEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
         }
     }
     else {
-
-        // use line curve
-        for (int j = 0; j < iCtrlPtCount - i; j++) {
-            ptvEvaluatedCurvePts.push_back(ptvCtrlPts[i + j]);
-        }
-
-        float x = 0.0;
-        float y1;
-
-        if (bWrap) {
-            // if wrapping is on, interpolate the y value at xmin and
-            // xmax so that the slopes of the lines adjacent to the
-            // wraparound are equal.
-
-            if ((ptvCtrlPts[0].x + fAniLength) - ptvCtrlPts[iCtrlPtCount - 1].x > 0.0f) {
-                y1 = (ptvCtrlPts[0].y * (fAniLength - ptvCtrlPts[iCtrlPtCount - 1].x) +
-                    ptvCtrlPts[iCtrlPtCount - 1].y * ptvCtrlPts[0].x) /
-                    (ptvCtrlPts[0].x + fAniLength - ptvCtrlPts[iCtrlPtCount - 1].x);
-
-            }
-            else
-                y1 = ptvCtrlPts[0].y;
-
-
-        }
-        else {
-            // if wrapping is off, make the first and last segments of
-            // the curve horizontal.
-
-            y1 = ptvCtrlPts[0].y;
-        }
-
-        ptvEvaluatedCurvePts.push_back(Point(x, y1));
-
-        // set the endpoint based on the wrap flag.
-        float y2;
-        x = fAniLength;
-        if (bWrap)
-            y2 = y1;
-        else
-            y2 = ptvCtrlPts[iCtrlPtCount - 1].y;
-
-        ptvEvaluatedCurvePts.push_back(Point(x, y2));
+        ptvEvaluatedCurvePts.push_back({ fAniLength, ptvCtrlPts[ptvCtrlPts.size() - 1].y });
+        ptvEvaluatedCurvePts.push_back({ 0, ptvCtrlPts[0].y });
     }
+
 }

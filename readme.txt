@@ -1,0 +1,1 @@
+1. CTRL + SHIFT + Left drag to change catmull-rom tension. 

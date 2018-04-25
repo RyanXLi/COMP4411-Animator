@@ -168,6 +168,10 @@ protected:
 	void endCtrlPtSelection(const int iMouseX, const int iMouseY);
 	void doPan(const int iMouseDX, const int iMouseDY);
 
+    //ADDED
+    void changeTension(const int iMouseDX, const int iMouseDY);
+    //ADDED END
+
 	void curveType(int iCurve, int iCurveType);
 
 	Point curveToWindow(int iCurve, const Point& ptCurve) const;

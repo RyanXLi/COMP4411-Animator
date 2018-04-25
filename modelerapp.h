@@ -65,6 +65,10 @@ public:
 	// Returns animating flag
 	bool Animating();
 
+    //ADDED
+    float tension = 0.5;
+    //ADDED END
+
 private:
 	// Private for singleton
 	ModelerApplication() : m_numControls(-1) { ps = 0; }
