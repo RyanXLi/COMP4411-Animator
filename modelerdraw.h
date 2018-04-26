@@ -7,6 +7,7 @@
 
 #include <FL/gl.h>
 #include <cstdio>
+#include "mat.h"
 
 // ADDED
 class XYZ {
@@ -143,5 +144,6 @@ double metaballFunc(double x0, double y0, double z0, double x, double y, double 
 XYZ VertexInterp(double threshold, XYZ v1, XYZ v2, double val1, double val2);
 void triangulize(double threshold, Cell grid);
 void drawMetaball(double threshold, const double r, double(*metaballFunc)(double x, double y, double z));
+Mat4f getModelViewMatrix();
 
 #endif

@@ -7,6 +7,7 @@
 #include <math.h>
 #include <vector>
 #include "modelerglobals.h"
+#include "particleSystem.h"
 
 class camera;
 // To make a DoggModel, we inherit off of ModelerView
@@ -103,6 +104,8 @@ void DoggModel::draw()
 	}
 	
 	ModelerView::draw();
+	//drawAxis();
+	Mat4f CameraM = getModelViewMatrix();
 
     if (VAL(RESET_LEG)) { DoggModel::resetLeg(); }
 
@@ -229,6 +232,16 @@ void DoggModel::draw()
                 glPushMatrix();
                 glRotated(90, 0, 1, 0);
                 drawCylinder(3, 0.8, 0.8);
+
+				/*  particle system */
+				glTranslated(0, 0, 3);
+				Mat4f CurrModelM = getModelViewMatrix();
+				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+				float currt = ModelerApplication::Instance()->GetTime();
+				int currfps = ModelerApplication::Instance()->GetFps();
+				cout << "#frame:" <<(currt*currfps) <<" "<<((int)currt*currfps % currfps == 0) << endl;
+				if ((int)(currt*currfps) % currfps == 0) ps->spawnParticles(CameraM, CurrModelM, currt);
+
                 glPopMatrix();
 
                 // wing
@@ -1144,6 +1157,10 @@ int main()
 	controls[IK_THETA_COS] = ModelerControl("IK Theta Constraint(deg)", 0, 45, 1, 15);
 
     controls[WING_ANGLE] = ModelerControl("Wing Angle", -30, 30, 0.1f, 0);
+
+	/* hook particle system to modeler app */
+	ParticleSystem * ps = new ParticleSystem();
+	ModelerApplication::Instance()->SetParticleSystem(ps);
 
     ModelerApplication::Instance()->Init(&createDoggModel, controls, NUMCONTROLS);
 

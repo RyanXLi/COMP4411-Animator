@@ -75,25 +75,27 @@ public:
 
 #if _MSC_VER >= 1300
 
-        template <class U> friend Mat3<U> operator -( const Mat3<U>& a );
+    template <class U> friend Mat3<U> operator -( const Mat3<U>& a );
 	template <class U> friend Mat3<U> operator +( const Mat3<U>& a, const Mat3<U>& b );
 	template <class U> friend Mat3<U> operator -( const Mat3<U>& a, const Mat3<U>& b );
 	template <class U> friend Mat3<U> operator *( const Mat3<U>& a, const Mat3<U>& b );
 	template <class U> friend Mat3<U> operator *( const Mat3<U>& a, const double d );
 	template <class U> friend Mat3<U> operator *( const double d, const Mat3<U>& a );
 	template <class U> friend Mat3<U> operator /( const Mat3<U>& a, const double d );
+	template <class U> friend Vec3<U> operator *(const Mat3<U>& a, const Vec3<U>& v);
 	template <class U> friend bool operator ==( const Mat3<U>& a, const Mat3<U>& b );
 	template <class U> friend bool operator !=( const Mat3<U>& a, const Mat3<U>& b );
 
 #else // _MSC_VER >= 1300
 
-        friend Mat3<T> operator -( const Mat3<T>& a );
+    friend Mat3<T> operator -( const Mat3<T>& a );
 	friend Mat3<T> operator +( const Mat3<T>& a, const Mat3<T>& b );
 	friend Mat3<T> operator -( const Mat3<T>& a, const Mat3<T>& b );
 	friend Mat3<T> operator *( const Mat3<T>& a, const Mat3<T>& b );
 	friend Mat3<T> operator *( const Mat3<T>& a, const double d );
 	friend Mat3<T> operator *( const double d, const Mat3<T>& a );
 	friend Mat3<T> operator /( const Mat3<T>& a, const double d );
+	friend Vec3<T> operator *(const Mat3<T>& a, const Vec3<T>& v);
 	friend bool operator ==( const Mat3<T>& a, const Mat3<T>& b );
 	friend bool operator !=( const Mat3<T>& a, const Mat3<T>& b );
 
@@ -252,6 +254,7 @@ public:
 	template <class U> friend Mat4<U> operator *( const Mat4<U>& a, const double d );
 	template <class U> friend Mat4<U> operator *( const double d, const Mat4<U>& a );
 	template <class U> friend Vec3<U> operator *( const Mat4<U>& a, const Vec3<U>& b );
+	template <class U> friend Vec4<U> operator *(const Mat4<U>& a, const Vec4<U>& b );
 	template <class U> friend Mat4<U> operator /( const Mat4<U>& a, const double d );
 	template <class U> friend bool operator ==( const Mat4<U>& a, const Mat4<U>& b );
 	template <class U> friend bool operator !=( const Mat4<U>& a, const Mat4<U>& b );
@@ -265,6 +268,7 @@ public:
 	friend Mat4<T> operator *( const Mat4<T>& a, const double d );
 	friend Mat4<T> operator *( const double d, const Mat4<T>& a );
 	friend Vec3<T> operator *( const Mat4<T>& a, const Vec3<T>& b );
+	friend Vec4<T> operator *(const Mat4<T>& a, const Vec4<T>& b );
 	friend Mat4<T> operator /( const Mat4<T>& a, const double d );
 	friend bool operator ==( const Mat4<T>& a, const Mat4<T>& b );
 	friend bool operator !=( const Mat4<T>& a, const Mat4<T>& b );
