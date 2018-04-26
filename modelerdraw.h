@@ -138,6 +138,8 @@ void drawTriangle( double x1, double y1, double z1,
 // ADDED!
 void drawTriangularPrism(int x, int y, int z);
 
+void drawSkybox();
+
 void drawTorus(double R, double r);
 
 double metaballFunc(double x0, double y0, double z0, double x, double y, double z);

@@ -102,6 +102,14 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	float dt = 1 / bake_fps;
 	if (isSimulate()) {
 		if (!isBakedAt(t)) {
+			printf("collision detection!\n");
+			for (auto a = particle_vec.begin(); a != particle_vec.end(); ++a) {
+				for (auto b = particle_vec.begin(); b != particle_vec.end(); ++b) {
+					if ((a->getP() - b->getP()).length() < 0.4) {
+
+					}
+				}
+			}
 			printf("updateParticles!\n");
 			for (auto it = particle_vec.begin(); it != particle_vec.end(); ++it) {
 				//std::cout << it->getP() << it->getM() << std::endl;

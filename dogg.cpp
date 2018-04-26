@@ -98,7 +98,7 @@ void DoggModel::draw()
     // This call takes care of a lot of the nasty projection 
     // matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
-
+	
 	if (VAL(FRAME_ALL)) { 
 		DoggModel::frameAll(VAL(XPOS), VAL(YPOS), VAL(ZPOS));
 	}
@@ -115,6 +115,8 @@ void DoggModel::draw()
 
 	setAmbientColor(.1f,.1f,.1f);
 	setDiffuseColor(1.0f, 1.0f, 1.0f);
+
+	if (VAL(SKYBOX)) { drawSkybox(); }
 
 	if (VAL(IK_SWITCH)) {
 		glPushMatrix();
@@ -1158,6 +1160,7 @@ int main()
 
     controls[WING_ANGLE] = ModelerControl("Wing Angle", -30, 30, 0.1f, 0);
     controls[CATMULL_ROM_TENSION] = ModelerControl("Catmull-Rom Tension", 0, 3, 0.01f, 1.5f);
+	controls[SKYBOX] = ModelerControl("SKYBOX", 0, 1, 1, 0);
 
 	/* hook particle system to modeler app */
 	ParticleSystem * ps = new ParticleSystem();
