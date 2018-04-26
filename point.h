@@ -27,10 +27,34 @@ public:
 
 	float x;
 	float y;
+
+    Point operator+(Point p2) {
+        return{ this->x + p2.x, this->y + p2.y };
+    }
+
+    Point operator-(Point p2) {
+        return{ this->x - p2.x, this->y - p2.y };
+    }
+
+    Point operator+(const Point p2) const {
+        return{ this->x + p2.x, this->y + p2.y };
+    }
+
+    Point operator-(const Point p2) const {
+        return{ this->x - p2.x, this->y - p2.y };
+    }
+
+    Point operator*(float f) {
+        return{ this->x * f, this->y * f };
+    }
 };
 
 std::ostream& operator<<(std::ostream& output_stream, const Point& point);
 std::istream& operator>>(std::istream& input_stream, Point& point);
+
+
+
+
 
 class PointSmallerXCompare : public std::binary_function<const Point&, const Point&, bool>
 {

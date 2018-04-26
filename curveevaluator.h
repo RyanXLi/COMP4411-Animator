@@ -4,6 +4,7 @@
 #pragma warning(disable : 4786)
 
 #include "Curve.h"
+#include "CurveGlobals.h"
 
 //using namespace std;
 

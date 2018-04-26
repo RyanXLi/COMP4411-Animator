@@ -109,7 +109,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>local/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>local/include;%(AdditionalIncludeDirectories);eigen</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;SAMPLE_SOLUTION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="bezierCurveEvaluator.cpp" />
     <ClCompile Include="bSplineEvaluator.cpp" />
+    <ClCompile Include="C2CurveEvaluator.cpp" />
     <ClCompile Include="catmullRomEvaluator.cpp" />
     <ClCompile Include="curve.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -263,9 +264,11 @@
   <ItemGroup>
     <ClInclude Include="BezierCurveEvaluator.h" />
     <ClInclude Include="bSplineEvaluator.h" />
+    <ClInclude Include="C2CurveEvaluator.h" />
     <ClInclude Include="CatmullRomEvaluator.h" />
     <ClInclude Include="curve.h" />
     <ClInclude Include="curveevaluator.h" />
+    <ClInclude Include="CurveGlobals.h" />
     <ClInclude Include="force.h" />
     <ClInclude Include="linearcurveevaluator.h" />
     <ClInclude Include="camera.h" />

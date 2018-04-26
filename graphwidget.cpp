@@ -25,7 +25,12 @@
 #include "GraphWidget.h"
 
 #include "LinearCurveEvaluator.h"
- 
+#include "bSplineEvaluator.h"
+#include "BezierCurveEvaluator.h" 
+#include "CatmullRomEvaluator.h"
+#include "C2CurveEvaluator.h"
+
+#include "modelerapp.h"
 
 #define LEFT		1
 #define MIDDLE		2
@@ -61,6 +66,7 @@
 #define ALT_LEFT_DOWN		28
 #define ALT_LEFT_DRAG		29
 #define ALT_LEFT_UP			30
+#define CTRL_SHIFT_LEFT_DRAG 31
 
 #define GRID_BACKGROUND_INTENSITY 0.65f
 #define CURR_CURVE_INTENSITY 1.0f
@@ -116,11 +122,11 @@ m_flcCurrCurve(FL_BLACK)
 	m_ppceCurveEvaluators[CURVE_TYPE_LINEAR] = new LinearCurveEvaluator();
 
 	// TODO: replace the linear evaluator for one of the three types of curves
-	m_ppceCurveEvaluators[CURVE_TYPE_BSPLINE] = new LinearCurveEvaluator();
-	m_ppceCurveEvaluators[CURVE_TYPE_BEZIER] = new LinearCurveEvaluator();
-	m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new LinearCurveEvaluator();
+    m_ppceCurveEvaluators[CURVE_TYPE_BSPLINE] = new BSplineEvaluator();
+    m_ppceCurveEvaluators[CURVE_TYPE_BEZIER] = new BezierCurveEvaluator();
+    m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new CatmullRomEvaluator();
 	// Note that C2-Interpolating curve is not a requirement
-	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new LinearCurveEvaluator();
+	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new C2CurveEvaluator();
 
 }
 
@@ -322,6 +328,10 @@ void GraphWidget::draw()
 				endZoomSelection(m_iMouseX, m_iMouseY);
 				break;
 
+            // ADDED
+            case CTRL_SHIFT_LEFT_DRAG:
+                changeTension(m_iMouseDX, m_iMouseDY);
+            // ADDED END
 			default:
 				break;
 		}
@@ -381,6 +391,11 @@ int GraphWidget::handle(int event)
 
 		if (m_bLButtonDown) {
 			if (Fl::event_state(FL_SHIFT))
+                //ADDED
+                if (Fl::event_state(FL_CTRL)) 
+                    m_iEventToDo = CTRL_SHIFT_LEFT_DRAG;
+                else
+                //ADDED END
 				m_iEventToDo = SHIFT_LEFT_DRAG;
 			else if (Fl::event_state(FL_CTRL))
 				m_iEventToDo = CTRL_LEFT_DRAG;
@@ -790,6 +805,19 @@ void GraphWidget::doPan(const int iMouseDX, const int iMouseDY)
 	m_rectCurrViewport.bottom(m_rectCurrViewport.bottom() + fdy);
 	m_rectCurrViewport.top(m_rectCurrViewport.top() + fdy);
 }
+
+//ADDED
+void GraphWidget::changeTension(const int iMouseDX, const int iMouseDY) {
+    std::cout << "iMouseDX: " << iMouseDX << std::endl;
+    std::cout << "iMouseDY: " << iMouseDY << std::endl;
+    
+    if (ModelerApplication::Instance()->tension + 0.01f * iMouseDX > 0
+        && ModelerApplication::Instance()->tension + 0.01f * iMouseDX < 3) {
+        ModelerApplication::Instance()->tension += 0.01f * iMouseDX;
+        std::cout << ModelerApplication::Instance()->tension << std::endl;
+    }
+}
+//ADDED END
 
 void GraphWidget::zoomAll()
 {

@@ -1157,6 +1157,7 @@ int main()
 	controls[IK_THETA_COS] = ModelerControl("IK Theta Constraint(deg)", 0, 45, 1, 15);
 
     controls[WING_ANGLE] = ModelerControl("Wing Angle", -30, 30, 0.1f, 0);
+    controls[CATMULL_ROM_TENSION] = ModelerControl("Catmull-Rom Tension", 0, 3, 0.01f, 1.5f);
 
 	/* hook particle system to modeler app */
 	ParticleSystem * ps = new ParticleSystem();
