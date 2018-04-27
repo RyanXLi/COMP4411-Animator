@@ -81,4 +81,27 @@ public:
 	bool operator()(const Point& first, const Point& second) const;
 };
 
+
+
+class Point3 {
+public:
+    Point3(void) {}
+    Point3(const float& new_x, const float& new_y, const float& new_z) :x(new_x),
+        y(new_y), z(new_z) {}
+    //void toStream(std::ostream& output_stream) const {
+    //    
+    //        output_stream << x << ", ";
+    //        output_stream << y << ", ";
+    //        output_stream << z << std::endl;
+    //}
+    float x = 0;
+    float y = 0;
+    float z = 0;
+};
+//std::ostream& operator<<(std::ostream& output_stream, const Point3& point) {
+//    point.toStream(output_stream);
+//
+//    return output_stream;
+//}
+
 #endif // POINT_H_INCLUDED

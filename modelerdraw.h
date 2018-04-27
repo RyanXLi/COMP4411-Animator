@@ -8,6 +8,11 @@
 #include <FL/gl.h>
 #include <cstdio>
 #include "mat.h"
+#include <vector>
+
+#include <Eigen/Dense>
+#include <iostream>
+#include "point.h"
 
 // ADDED
 class XYZ {
@@ -137,6 +142,10 @@ void drawTriangle( double x1, double y1, double z1,
 
 // ADDED!
 void drawTriangularPrism(int x, int y, int z);
+
+
+void drawBSplineSurface(float dx, float dy, float dz);
+void evalBezierSegment(Point3 p1, Point3 p2, Point3 p3, Point3 p4, std::vector<Point3>& ptvEvaluatedCurvePts);
 
 void drawSkybox();
 

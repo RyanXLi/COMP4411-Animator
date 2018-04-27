@@ -76,7 +76,7 @@ void C1CurveEvaluator::evaluateCurve(
         // segment connecting tail and head
         p1 = ptvCtrlPts[lastIndex-1];
         p2 = ptvCtrlPts[lastIndex];
-        p3 = ptvCtrlPts[1];
+        p3 = ptvCtrlPts[0] + ptvCtrlPts[0] - ptvCtrlPts[1];
         p3.x += fAniLength;
         p4 = ptvCtrlPts[0];
         p4.x += fAniLength;
@@ -89,11 +89,12 @@ void C1CurveEvaluator::evaluateCurve(
         }
     }
     else {
-        ptvEvaluatedCurvePts.push_back({ fAniLength, ptvCtrlPts[ptvCtrlPts.size() - 1].y });
+        ptvEvaluatedCurvePts.push_back({ fAniLength, ptvCtrlPts[ptvCtrlPts.size() - 2].y });
         ptvEvaluatedCurvePts.push_back({ 0, ptvCtrlPts[0].y });
     }
 
     // 4. store a copy of ctrlPts
+
     ModelerApplication::Instance()->prevC1Points = ptvCtrlPts;
 }
 

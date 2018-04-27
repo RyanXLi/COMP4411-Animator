@@ -127,6 +127,16 @@ void DoggModel::draw()
 
 	Vec3f vIK(VAL(IK_X), VAL(IK_Y), VAL(IK_Z));
 
+    if (VAL(BSPLINE_SURFACE)) {
+        setDiffuseColor(0.0f, 1.0f, 0.0f);
+        glPushMatrix();
+        glTranslated(0, 0, 4);
+        glScaled(2, 2, 2);
+        drawBSplineSurface(VAL(BSPLINE_X), VAL(BSPLINE_Y), VAL(BSPLINE_Z));
+        glPopMatrix();
+        setDiffuseColor(1.0f, 1.0f, 1.0f);
+    }
+
 	glPushMatrix();
 	glTranslated(VAL(XPOS), VAL(YPOS), VAL(ZPOS));
 
@@ -1173,6 +1183,10 @@ int main()
     controls[CATMULL_ROM_TENSION] = ModelerControl("Catmull-Rom Tension", 0, 3, 0.01f, 1.5f);
 	controls[SKYBOX] = ModelerControl("Show SKYBOX", 0, 1, 1, 0);
 	controls[HEIGHT_FIELD] = ModelerControl("Show Height Field", 0, 1, 1, 0);
+    controls[BSPLINE_SURFACE] = ModelerControl("Show bspline surface", 0, 1, 1, 0);
+    controls[BSPLINE_X] = ModelerControl("bspline surface ctrl pt X", -3, 3, 0.01, 0);
+    controls[BSPLINE_Y] = ModelerControl("bspline surface ctrl pt Y", -3, 3, 0.01, 0);
+    controls[BSPLINE_Z] = ModelerControl("bspline surface ctrl pt Z", -3, 3, 0.01, 0);
 
 	/* hook particle system to modeler app */
 	ParticleSystem * ps = new ParticleSystem();

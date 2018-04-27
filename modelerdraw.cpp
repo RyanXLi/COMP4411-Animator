@@ -10,8 +10,10 @@
 #include "modelerapp.h"
 #include "modelerglobals.h"
 #include "bitmap.h"
-#include <vector>
 #include <map>
+
+
+#define NUMSEG 20
 // END
 
 enum {
@@ -497,7 +499,193 @@ void drawTriangle( double x1, double y1, double z1,
 }
 
 
+void drawBSplineSurface(float dx, float dy, float dz) {
 
+
+    _setupOpenGl();
+
+    int numSeg = NUMSEG;
+    //std::vector<std::vector<Point3>> mesh = {
+    //    { { 0, 0, 0 },{ 0, 1, 1 },{ 0, 2, 0 },{ 0, 3, 1 } },
+    //    { { 1, 0, -1 },{ 1, 1, 0 },{ 1, 2, -1 },{ 1, 3, 0 } },
+    //    { { 2, 0, 0 },{ 2, 1, 1 },{ 2, 2, 0 },{ 2, 3, 1 } },
+    //    { { 3, 0, -1 },{ 3, 1, 0 },{ 3, 2, -1 },{ 3, 3, 0 } }
+    //};
+
+    std::vector<std::vector<Point3>> mesh = {
+        { { 0+dx, 0+dy, 2+dz  },{ 0, 1, -2 },{ 0, 2, 2  },{ 0, 3, -2 } },
+        { { 1, 0, -2 },{ 1, 1, 2 },{ 1, 2, -2 },{ 1, 3, 2 } },
+        { { 2, 0, 2  },{ 2, 1, -2 },{ 2, 2, 2  },{ 2, 3, -2 } },
+        { { 3, 0, -2 },{ 3, 1, 2 },{ 3, 2, -2 },{ 3, 3, 2 } }
+    };
+    std::vector<std::vector<Point3>> firstDimensionSplines = {
+        std::vector<Point3>(), std::vector<Point3>(), std::vector<Point3>(), std::vector<Point3>()
+    };
+
+    for (int j = 0; j < 4; j++) {
+   
+        //for (int i = 0; i <= ptvCtrlPts.size() - 4; i += 1) {
+        Point3 b1 = mesh[j][0];
+        Point3 b2 = mesh[j][1];
+        Point3 b3 = mesh[j][2];
+        Point3 b4 = mesh[j][3];
+
+        Eigen::Matrix<float, 4, 3> b_matrix;
+        b_matrix << b1.x, b1.y, b1.z,
+            b2.x, b2.y, b2.z,
+            b3.x, b3.y, b3.z,
+            b4.x, b4.y, b4.z;
+
+        Eigen::Matrix<float, 4, 4> transformMatrix;
+        transformMatrix << 1, 4, 1, 0,
+            0, 4, 2, 0,
+            0, 2, 4, 0,
+            0, 1, 4, 1;
+
+        Eigen::Matrix<float, 4, 3> v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+        Point3 p1 = { v_matrix(0, 0), v_matrix(0, 1), v_matrix(0, 2) };
+        Point3 p2 = { v_matrix(1, 0), v_matrix(1, 1), v_matrix(1, 2) };
+        Point3 p3 = { v_matrix(2, 0), v_matrix(2, 1), v_matrix(2, 2) };
+        Point3 p4 = { v_matrix(3, 0), v_matrix(3, 1), v_matrix(3, 2) };
+
+        evalBezierSegment(p1, p2, p3, p4, firstDimensionSplines[j]);
+
+        //std::cout << j << std::endl;
+        //for (int i = 0; i < firstDimensionSplines[j].size(); i++) {
+        //    std::cout << firstDimensionSplines[j][i].x << std::endl;
+        //    std::cout << firstDimensionSplines[j][i].y << std::endl;
+        //    std::cout << firstDimensionSplines[j][i].z << std::endl;
+        //}
+        //}
+        
+    }
+
+
+
+    //for (int k = 0; k <= 4 - 4; k += 1) {
+        for (int j = 0; j < numSeg-1; j += 1) {
+            std::vector<Point3> secondDimensionSpline1 = {};
+            std::vector<Point3> secondDimensionSpline2 = {};
+            Point3 p1, p2, p3, p4, b1, b2, b3, b4;
+            //for (int i = 0; i <= firstDimensionSplines.size() - 4; i += 1) {
+            b1 = firstDimensionSplines[0][j];
+            b2 = firstDimensionSplines[1][j];
+            b3 = firstDimensionSplines[2][j];
+            b4 = firstDimensionSplines[3][j];
+
+            Eigen::Matrix<float, 4, 3> b_matrix;
+            b_matrix << b1.x, b1.y, b1.z,
+                b2.x, b2.y, b2.z,
+                b3.x, b3.y, b3.z,
+                b4.x, b4.y, b4.z;
+
+            Eigen::Matrix<float, 4, 4> transformMatrix;
+            transformMatrix << 1, 4, 1, 0,
+                0, 4, 2, 0,
+                0, 2, 4, 0,
+                0, 1, 4, 1;
+
+            Eigen::Matrix<float, 4, 3> v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+            p1 = { v_matrix(0, 0), v_matrix(0, 1), v_matrix(0, 2) };
+            p2 = { v_matrix(1, 0), v_matrix(1, 1), v_matrix(1, 2) };
+            p3 = { v_matrix(2, 0), v_matrix(2, 1), v_matrix(2, 2) };
+            p4 = { v_matrix(3, 0), v_matrix(3, 1), v_matrix(3, 2) };
+
+            evalBezierSegment(p1, p2, p3, p4, secondDimensionSpline1);
+
+                //// second dimension
+                //// hardcode
+                //std::cout << "1:" << std::endl;
+                //for (int i = 0; i < secondDimensionSpline1.size(); i++) {
+                //    std::cout << secondDimensionSpline1[i].x << std::endl;
+                //    std::cout << secondDimensionSpline1[i].y << std::endl;
+                //    std::cout << secondDimensionSpline1[i].z << std::endl;
+                //}
+                //std::cout << std::endl;
+                //std::cout << std::endl;
+                //std::cout << std::endl;
+                //std::cout << "2:" << std::endl;
+                //for (int i = 0; i < secondDimensionSpline1.size(); i++) {
+                //    std::cout << secondDimensionSpline2[i].x << std::endl;
+                //    std::cout << secondDimensionSpline2[i].y << std::endl;
+                //    std::cout << secondDimensionSpline2[i].z << std::endl;
+                //}
+            //}
+            //for (int i = 0; i <= firstDimensionSplines.size() - 4; i += 1) {
+            b1 = firstDimensionSplines[0][j+1];
+            b2 = firstDimensionSplines[1][j+1];
+            b3 = firstDimensionSplines[2][j+1];
+            b4 = firstDimensionSplines[3][j+1];
+
+            //Eigen::Matrix<float, 4, 3> b_matrix;
+            b_matrix << b1.x, b1.y, b1.z,
+                b2.x, b2.y, b2.z,
+                b3.x, b3.y, b3.z,
+                b4.x, b4.y, b4.z;
+
+            //Eigen::Matrix<float, 4, 4> transformMatrix;
+            transformMatrix << 1, 4, 1, 0,
+                0, 4, 2, 0,
+                0, 2, 4, 0,
+                0, 1, 4, 1;
+
+            v_matrix = (1.0f / 6.0f) * transformMatrix * b_matrix;
+
+            p1 = { v_matrix(0, 0), v_matrix(0, 1), v_matrix(0, 2) };
+            p2 = { v_matrix(1, 0), v_matrix(1, 1), v_matrix(1, 2) };
+            p3 = { v_matrix(2, 0), v_matrix(2, 1), v_matrix(2, 2) };
+            p4 = { v_matrix(3, 0), v_matrix(3, 1), v_matrix(3, 2) };
+
+            evalBezierSegment(p1, p2, p3, p4, secondDimensionSpline2);
+
+            // draw between 2 bsplines
+            glBegin(GL_TRIANGLE_STRIP);
+            for (int i = 0; i < secondDimensionSpline1.size(); i++) {
+                glVertex3f(secondDimensionSpline1[i].x, secondDimensionSpline1[i].y, secondDimensionSpline1[i].z);
+                glVertex3f(secondDimensionSpline2[i].x, secondDimensionSpline2[i].y, secondDimensionSpline2[i].z);
+            }
+            glEnd();
+        }
+
+
+
+
+        //}
+    //}
+}
+
+void evalBezierSegment(Point3 p1, Point3 p2, Point3 p3, Point3 p4, std::vector<Point3>& ptvEvaluatedCurvePts) {
+
+    float numSeg = NUMSEG;
+    float step = 1 / numSeg;
+    Eigen::Matrix<float, 4, 4> m_b;
+    m_b << -1, 3, -3, 1,
+        3, -6, 3, 0,
+        -3, 3, 0, 0,
+        1, 0, 0, 0;
+
+    Eigen::Matrix<float, 4, 3> g_b;
+
+    g_b << p1.x, p1.y, p1.z,
+           p2.x, p2.y, p2.z,
+           p3.x, p3.y, p3.z,
+           p4.x, p4.y, p4.z;
+
+    Eigen::Matrix<float, 1, 4> m_t;
+    Eigen::Matrix<float, 1, 3> m_point;
+
+
+    for (int j = 0; j < numSeg; ++j) {
+        float t = j * step;
+        m_t << t*t*t, t*t, t, 1;
+        m_point = m_t * m_b * g_b;
+
+        Point3 point = { m_point(0,0), m_point(0,1), m_point(0,2) };
+        ptvEvaluatedCurvePts.push_back(point);
+    }
+}
 
 
 
