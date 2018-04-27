@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include "modelerapp.h"
+#include "modelerglobals.h"
 
 
 void BezierCurveEvaluator::evaluateCurve(std::vector<Point>& ptvCtrlPts,
@@ -19,6 +20,8 @@ void BezierCurveEvaluator::evaluateCurve(std::vector<Point>& ptvCtrlPts,
     //for (int i = 0; i < iCtrlPtCount; i++) {
     //    std::cout << i << "th: " << ptvCtrlPts[i].x << ", " << ptvCtrlPts[i].y << std::endl;
     //}
+
+    std::cout << "adaptive:"<<ModelerApplication::Instance()->adaptive << std::endl;
     
     int i;
     for (i = 0; i <= iCtrlPtCount - 4; i+=3) {
@@ -27,7 +30,16 @@ void BezierCurveEvaluator::evaluateCurve(std::vector<Point>& ptvCtrlPts,
         Point p3 = ptvCtrlPts[i+2];
         Point p4 = ptvCtrlPts[i+3];
 
-        drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+        if (ModelerApplication::Instance()->adaptive) {
+            int ptCountBefore = ptvEvaluatedCurvePts.size();
+            drawBezierSegmentAdaptively(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+            int ptCountAfter = ptvEvaluatedCurvePts.size();
+            std::cout << "This segment generates " 
+                << ptCountAfter - ptCountBefore << " points." << std::endl;
+        }
+        else {
+            drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+        }
 
     }
 
@@ -39,7 +51,16 @@ void BezierCurveEvaluator::evaluateCurve(std::vector<Point>& ptvCtrlPts,
         Point p4 = ptvCtrlPts[0];
         p4.x += fAniLength;
 
-        drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+        if (ModelerApplication::Instance()->adaptive) {
+            int ptCountBefore = ptvEvaluatedCurvePts.size();
+            drawBezierSegmentAdaptively(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+            int ptCountAfter = ptvEvaluatedCurvePts.size();
+            std::cout << "This segment generates "
+                << ptCountAfter - ptCountBefore << " points." << std::endl;
+        }
+        else {
+            drawBezierSegment(p1, p2, p3, p4, ptvEvaluatedCurvePts);
+        }
 
         for (int k = 0; k < ptvEvaluatedCurvePts.size(); k++) {
             if (ptvEvaluatedCurvePts[k].x > fAniLength) {
@@ -124,4 +145,35 @@ void BezierCurveEvaluator::drawBezierSegment(Point p1, Point p2, Point p3, Point
         Point point = { m_point(0,0), m_point(0,1) };
         ptvEvaluatedCurvePts.push_back(point);
     }
+}
+
+
+bool BezierCurveEvaluator::isFlatEnough(Point p1, Point p2, Point p3, Point p4)
+{
+    //std::cout << VAL(FLAT_THRES) << std::endl;
+    return ((p1.distance(p2) + p2.distance(p3) + p3.distance(p4)) / p1.distance(p4) < 1 + ModelerApplication::Instance()->flatThreshold);
+}
+void BezierCurveEvaluator::drawBezierSegmentAdaptively(Point p1, Point p2, Point p3, Point p4, std::vector<Point>& ptvEvaluatedCurvePts)
+ {
+    if (isFlatEnough(p1, p2, p3, p4)) {
+        ptvEvaluatedCurvePts.push_back(p1);
+        ptvEvaluatedCurvePts.push_back(p4);
+    }
+    else{
+        Point level1[3];
+        Point level2[2];
+
+        level1[0] = Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+        level1[1] = Point((p2.x + p3.x) / 2, (p2.y + p3.y) / 2);
+        level1[2] = Point((p3.x + p4.x) / 2, (p3.y + p4.y) / 2);
+        
+        level2[0] = Point((level1[0].x + level1[1].x) / 2, (level1[0].y + level1[1].y) / 2);
+        level2[1] = Point((level1[1].x + level1[2].x) / 2, (level1[1].y + level1[2].y) / 2);
+
+        Point q((level2[0].x + level2[1].x) / 2, (level2[0].y + level2[1].y) / 2);
+
+        drawBezierSegmentAdaptively(p1, level1[0], level2[0], q, ptvEvaluatedCurvePts);
+        drawBezierSegmentAdaptively(q, level2[1], level1[2], p4, ptvEvaluatedCurvePts);
+    }
+
 }

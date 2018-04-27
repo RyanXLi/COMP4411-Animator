@@ -128,6 +128,15 @@ void DoggModel::draw()
     // This call takes care of a lot of the nasty projection 
     // matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
+
+    // change vals used elsewhere
+    if (VAL(ADAPTIVE) != ModelerApplication::Instance()->adaptive) {
+        ModelerApplication::Instance()->adaptive = VAL(ADAPTIVE);
+    }
+
+    if (VAL(FLAT_THRES) != ModelerApplication::Instance()->flatThreshold) {
+        ModelerApplication::Instance()->flatThreshold = VAL(FLAT_THRES);
+    }
 	
 	if (VAL(FRAME_ALL)) { 
 		DoggModel::frameAll(VAL(XPOS), VAL(YPOS), VAL(ZPOS));
@@ -1860,6 +1869,8 @@ int main()
     controls[BSPLINE_X] = ModelerControl("bspline surface ctrl pt X", -3, 3, 0.01, 0);
     controls[BSPLINE_Y] = ModelerControl("bspline surface ctrl pt Y", -3, 3, 0.01, 0);
     controls[BSPLINE_Z] = ModelerControl("bspline surface ctrl pt Z", -3, 3, 0.01, 0);
+    controls[ADAPTIVE] = ModelerControl("Adaptively draw bezier", 0, 1, 1, 0);
+    controls[FLAT_THRES] = ModelerControl("flat threshold", -0.2, 0.2, 0.01, 0.01);
 
 	/* hook particle system to modeler app */
 	ParticleSystem * ps = new ParticleSystem();
