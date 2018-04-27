@@ -9,6 +9,15 @@
 #include "modelerglobals.h"
 #include "particleSystem.h"
 
+Mat4d reflect_plane(double a, double b, double c, double d) {
+	return Mat4d(
+		1 - 2 * a*a, -2 * a*b, -2 * a*c, -2 * a*d,
+		-2 * a*b, 1 - 2 * b*b, -2 * b*c, -2 * b*d,
+		-2 * a*c, -2 * b*c, 1 - 2 * c*c, -2 * c*d,
+		0, 0, 0, 1
+	);
+}
+
 class camera;
 // To make a DoggModel, we inherit off of ModelerView
 class DoggModel : public ModelerView 
@@ -247,6 +256,7 @@ void DoggModel::draw()
                 drawCylinder(3, 0.8, 0.8);
 
 				/*  particle system */
+				glPushMatrix();
 				glTranslated(0, 0, 3);
 				Mat4f CurrModelM = getModelViewMatrix();
 				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
@@ -254,6 +264,7 @@ void DoggModel::draw()
 				int currfps = ModelerApplication::Instance()->GetFps();
 				cout << "#frame:" <<(currt*currfps) <<" "<<((int)currt*currfps % currfps == 0) << endl;
 				if ((int)(currt*currfps) % currfps == 0) ps->spawnParticles(CameraM, CurrModelM, currt);
+				glPopMatrix();
 
                 glPopMatrix();
 
@@ -730,6 +741,643 @@ void DoggModel::draw()
 
         }
 		
+		if (VAL(MIRROR)) {
+			glEnable(GL_STENCIL_TEST);
+			glStencilFunc(GL_ALWAYS, 1, 0xFF); // Set any stencil to 1
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			glStencilMask(0xFF); // Write to stencil buffer
+			glClear(GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
+		}
+		//draw a mirror base
+		glPushMatrix();
+		glDepthMask(GL_FALSE);
+		drawAxis();
+		glTranslated(-5, -3.5, -5);
+		drawBox(10, 0.01f, 10);
+		glDepthMask(GL_TRUE);
+		glPopMatrix();
+
+		if (VAL(MIRROR)) {
+			// Draw cube reflection
+			glStencilFunc(GL_EQUAL, 1, 0xFF); // Pass test if stencil value is 1
+			glStencilMask(0x00); // Don't write anything to stencil buffer
+
+			glPushMatrix();
+			Mat4d RM = reflect_plane(0, 1, 0, 3.5);
+			double RMGL[16];
+			RM.getGLMatrix(RMGL);
+			glMultMatrixd(RMGL);
+
+			// start draw
+			glPushMatrix();
+			glTranslated(VAL(XPOS), VAL(YPOS), VAL(ZPOS));
+
+			// part 1: torso
+			glPushMatrix();
+			glTranslated(-2, 0, -1);
+			glScaled(2, 3, 2);
+			drawTextureBox(1, 1, 1);
+			glPopMatrix();
+
+
+			// part 2: torso
+			glPushMatrix();
+			glTranslated(0, 1.5, -1);
+			glRotated(-90, 0.0, 0.0, 1.0);
+			glScaled(1.5, 4.5, 2);
+			//drawTriangularPrism(1,1,1);
+
+			// top bottom
+			drawTriangle(
+				0, 1, 0,
+				1, 0, 0,
+				0, 0, 0
+			);
+			drawTriangle(
+				0, 0, 1,
+				1, 0, 1,
+				0, 1, 1
+			);
+
+			// x-z plane
+			drawTriangle(
+				0, 0, 0,
+				0, 0, 1,
+				1, 0, 1
+			);
+			drawTriangle(
+				1, 0, 1,
+				1, 0, 0,
+				0, 0, 0
+			);
+
+			// z-y plane
+			drawTriangle(
+				0, 0, 0,
+				0, 1, 0,
+				0, 1, 1
+			);
+			drawTriangle(
+				0, 1, 1,
+				0, 0, 1,
+				0, 0, 0
+			);
+
+			// final surface
+			drawTriangle(
+				0, 1, 0,
+				0, 1, 1,
+				1, 0, 1
+			);
+			drawTriangle(
+				1, 0, 1,
+				1, 0, 0,
+				0, 1, 0
+			);
+
+			glPopMatrix();
+
+			glPushMatrix();
+			glTranslated(0, 1.5, -1);
+			glScaled(4.5, 1.5, 2);
+			drawTextureBox(1, 1, 1);
+			glPopMatrix();
+
+			// draw height field
+			if (VAL(HEIGHT_FIELD)) {
+				glPushMatrix();
+				glTranslated(0.5, 3.0, 1);
+				glRotated(-90, 1, 0, 0);
+				drawAxis();
+				drawHeightfield();
+				glPopMatrix();
+			}
+
+			setDiffuseColor(1.0f, 1.0f, 1.0f);
+			// test metaball
+			//glPushMatrix();
+			//glTranslated(0, 5, 0);
+			//glRotated(90, 0, 0, 1);
+			//glScaled(1, 1, 1);
+			//
+			//auto m_func = [](double x, double y, double z) 
+			//    -> double {return metaballFunc(-0.5, 0, 0, x, y, z) + metaballFunc(0.5, 0, 0, x, y, z); };
+			//
+			//drawMetaball(m_func(1, 0, 0), 2, m_func);
+			//glPopMatrix();
+
+
+
+			if (VAL(LV_DETAIL) > 1) {
+
+				if (VAL(DRAW_PROP)) {
+					// propeller
+					// left
+
+					glPushMatrix();
+					glTranslated(1, 2.5, 0.9);
+					glRotated(60, 1, 0, 0);
+
+					glPushMatrix();
+					glScaled(0.3, 1.2, 0.3);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+
+					glTranslated(-1.5, 0.8 - 0.2 + 0.8, 0);
+					glPushMatrix();
+					glRotated(90, 0, 1, 0);
+					drawCylinder(3, 0.8, 0.8);
+
+					/*  particle system */
+					//glPushMatrix();
+					//glTranslated(0, 0, 3);
+					//Mat4f CurrModelM = getModelViewMatrix();
+					//ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+					//float currt = ModelerApplication::Instance()->GetTime();
+					//int currfps = ModelerApplication::Instance()->GetFps();
+					//cout << "#frame:" << (currt*currfps) << " " << ((int)currt*currfps % currfps == 0) << endl;
+					//if ((int)(currt*currfps) % currfps == 0) ps->spawnParticles(CameraM, CurrModelM, currt);
+					//glPopMatrix();
+
+					glPopMatrix();
+
+					// wing
+					glPushMatrix();
+					glTranslated(0.3, 0, 0);
+					glRotated(-90, 0, 1, 0);
+					glRotated(-90, 0, 0, 1);
+					glRotated(180, 1, 0, 0);
+
+					//rotate
+					glRotated(-VAL(WING_ANGLE), 0, 0, 1);
+					animateWing();
+					//drawAxis();
+					drawWing(FALSE);
+					glPopMatrix();
+
+					glPopMatrix();
+
+					// right
+					glPushMatrix();
+					glTranslated(1, 2.5 - 0.15, -0.9); // - (0.3 / 2) since rotation direction
+					glRotated(-60, 1, 0, 0);
+
+					glPushMatrix();
+					glScaled(0.3, 1.2, 0.3);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+
+					glTranslated(-1.5, 0.8 - 0.2 + 0.8, +0.15);
+					glPushMatrix();
+					glRotated(90, 0, 1, 0);
+					drawCylinder(3, 0.8, 0.8);
+					glPopMatrix();
+
+					// wing
+					glPushMatrix();
+					glTranslated(0.3, 0, 0);
+					glRotated(90, 0, 1, 0);
+					glRotated(90, 0, 0, 1);
+
+					//rotate
+					glRotated(VAL(WING_ANGLE), 0, 0, 1);
+					animateWing();
+					//drawAxis();
+					drawWing(TRUE);
+					glPopMatrix();
+
+					glPopMatrix();
+
+
+				}
+
+
+				// part 3: neck
+
+				double angle0 = 45 + VAL(NECK_ANGLE);
+
+				glPushMatrix();
+
+				glTranslated(-1, 1.3, -1);
+				glRotated(angle0, 0.0, 0.0, 1.0);
+
+				glPushMatrix();
+				glScaled(1.5, 2.2, 2);
+				drawTextureBox(1, 1, 1);
+				glPopMatrix();
+
+				// head
+				if (VAL(LV_DETAIL) > 2) {
+
+					glTranslated(1.5, 2, 0);
+					glRotated(90, 0, 0, 1);
+
+					// rotate
+					glTranslated(0, 0, 1);
+					glRotated(VAL(HEAD_ANGLE_X), 1, 0, 0);
+					glTranslated(0, 0, -1);
+					glRotated(VAL(HEAD_ANGLE_Z), 0, 0, 1);
+
+					if (VAL(CHEERFULNESS) < 0 && hasDiffLegParam) {
+						shouldMoveHead = 1;
+					}
+					moveHead();
+
+					glPushMatrix();
+					glScaled(0.75, 3, 2);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+
+					glTranslated(0.75, 0, 0);
+
+					glPushMatrix();
+					glScaled(0.75, 2, 2);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+
+					// torus
+					//drawAxis();
+
+					glPushMatrix();
+					glTranslated(1.5, 1, 1);
+					glRotated(90, 0, 1, 0);
+					drawTorus(0.8, 0.2);
+					glPopMatrix();
+				}
+
+				glPopMatrix();
+
+
+				// part4, 8, 11 front right leg
+				double frontLegSize = 0.6;
+				double frontLegX = -2 + frontLegSize;
+				double frontLegY = 0;
+				double frontLegZ = -1;
+
+				glPushMatrix();
+				glTranslated(frontLegX, frontLegY + 0.5, frontLegZ);
+
+				// rotate
+				glRotated(VAL(RIGHT_FRONT_ANGLE1), 0, 0, 1);
+				animate(RIGHT_FRONT_ANGLE1);
+
+				if (VAL(METABALL)) {
+					glPushMatrix();
+					glTranslated(-0.3, -1.25, 0.3);
+					glRotated(-90, 0, 0, 1);
+					glScaled(1, 0.8, 0.8);
+
+					auto m_func = [](double x, double y, double z)
+						-> double {return metaballFunc(-0.55, 0, 0, x, y, z) + metaballFunc(0.55, 0, 0, x, y, z); };
+
+					drawMetaball(m_func(1.12, 0, 0), 1, m_func);
+					glPopMatrix();
+				}
+				else {
+					glPushMatrix();
+					glRotated(-180, 0, 0, 1);
+					glScaled(frontLegSize, 2 + 0.5, frontLegSize);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+				}
+
+				if (VAL(LV_DETAIL) > 2) {
+
+					glTranslated(0, -2 - 0.5 + 0.2, 0);
+					glRotated(VAL(RIGHT_FRONT_ANGLE2), 0, 0, 1);
+					animate(RIGHT_FRONT_ANGLE2);
+
+					if (VAL(METABALL)) {
+						glPushMatrix();
+						glTranslated(-0.3, -1.25 + 0.6, 0.3);
+						glRotated(-90, 0, 0, 1);
+						glScaled(0.8, 0.6, 0.6);
+
+						auto m_func = [](double x, double y, double z)
+							-> double {return metaballFunc(-0.55, 0, 0, x, y, z) + metaballFunc(0.55, 0, 0, x, y, z); };
+
+						drawMetaball(m_func(1.12, 0, 0), 1, m_func);
+						glPopMatrix();
+					}
+					else {
+						glPushMatrix();
+						glRotated(-180, 0, 0, 1);
+						glScaled(frontLegSize, 1.5, frontLegSize);
+						drawTextureBox(1, 1, 1);
+						glPopMatrix();
+					}
+
+					if (VAL(LV_DETAIL) > 3) {
+
+						glTranslated(0, -1.5 + 0.2, 0);
+						glRotated(VAL(RIGHT_FRONT_ANGLE3), 0, 0, 1);
+						animate(RIGHT_FRONT_ANGLE3);
+
+						glPushMatrix();
+						glRotated(-180, 0, 0, 1);
+						glScaled(1, 0.3, frontLegSize);
+						drawTextureBox(1, 1, 1);
+						glPopMatrix();
+					}
+				}
+				glPopMatrix();
+
+
+
+
+
+
+				// front left leg
+				frontLegZ = 1 - frontLegSize;
+
+				// copied from above
+				glPushMatrix();
+				glTranslated(frontLegX, frontLegY + 0.5, frontLegZ);
+
+				// rotate
+				glRotated(VAL(LEFT_FRONT_ANGLE1), 0, 0, 1);
+				animate(LEFT_FRONT_ANGLE1);
+
+				if (VAL(METABALL)) {
+					glPushMatrix();
+					glTranslated(-0.3, -1.25, 0.3);
+					glRotated(-90, 0, 0, 1);
+					glScaled(1, 0.8, 0.8);
+
+					auto m_func = [](double x, double y, double z)
+						-> double {return metaballFunc(-0.55, 0, 0, x, y, z) + metaballFunc(0.55, 0, 0, x, y, z); };
+
+					drawMetaball(m_func(1.12, 0, 0), 1, m_func);
+					glPopMatrix();
+				}
+				else {
+					glPushMatrix();
+					glRotated(-180, 0, 0, 1);
+					glScaled(frontLegSize, 2 + 0.5, frontLegSize);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+				}
+
+				glTranslated(0, -2 - 0.5 + 0.2, 0);
+				glRotated(VAL(LEFT_FRONT_ANGLE2), 0, 0, 1);
+				animate(LEFT_FRONT_ANGLE2);
+
+				if (VAL(LV_DETAIL) > 2) {
+
+					if (VAL(METABALL)) {
+						glPushMatrix();
+						glTranslated(-0.3, -1.25 + 0.6, 0.3);
+						glRotated(-90, 0, 0, 1);
+						glScaled(0.8, 0.6, 0.6);
+
+						auto m_func = [](double x, double y, double z)
+							-> double {return metaballFunc(-0.55, 0, 0, x, y, z) + metaballFunc(0.55, 0, 0, x, y, z); };
+
+						drawMetaball(m_func(1.12, 0, 0), 1.5, m_func);
+						glPopMatrix();
+					}
+					else {
+						glPushMatrix();
+						glRotated(-180, 0, 0, 1);
+						glScaled(frontLegSize, 1.5, frontLegSize);
+						drawTextureBox(1, 1, 1);
+						glPopMatrix();
+					}
+
+
+					glTranslated(0, -1.5 + 0.2, 0);
+					glRotated(VAL(LEFT_FRONT_ANGLE3), 0, 0, 1);
+					animate(LEFT_FRONT_ANGLE3);
+
+					if (VAL(LV_DETAIL) > 3) {
+						glPushMatrix();
+						glRotated(-180, 0, 0, 1);
+						glScaled(1, 0.3, frontLegSize);
+						drawTextureBox(1, 1, 1);
+						glPopMatrix();
+					}
+				}
+				glPopMatrix();
+
+
+
+
+
+
+				// part5, 9, 12 back right leg
+
+				double backLegSize = 0.6;
+				double backLegX = 4.5;
+				double backLegY = 1.7;
+				double backLegZ = -1;
+
+				double aux = 0.1;
+
+				glPushMatrix();
+				glTranslated(backLegX, backLegY + aux, backLegZ);
+				//drawAxis();
+				// rotate
+
+				float alpha1, alpha2;
+				const float l1 = 2.3, l2 = 3.0;
+				if (VAL(IK_SWITCH)) {
+					Mat4f mTrans, mRota;
+					Vec3f vTrans(-backLegX, -(backLegY + aux), -backLegZ);
+					MakeHTrans(mTrans, vTrans);
+					vIK = (mTrans * vIK);
+					std::cout << vIK << std::endl;
+					float theta = atanf(vIK[2] / vIK[1]) / M_PI * 180.0f;
+					if (VAL(IK_CONSTRAINT_SWITCH)) {
+						theta = abs(theta) > VAL(IK_THETA_COS) ? theta / abs(theta)*VAL(IK_THETA_COS) : theta;
+					}
+					float theta_radiant = atanf(vIK[2] / vIK[1]);
+					printf("%f\n", theta);
+					glRotatef(theta, 1, 0, 0);
+					MakeHRotX(mRota, -theta_radiant);
+					vIK = mRota * vIK;
+					//glPushMatrix();
+					//glTranslatef(vIK[0], vIK[1], vIK[2]);
+					//drawAxis();
+					//glPopMatrix;
+					std::cout << vIK << std::endl;
+					// deal with the situation that can't reach (too far
+					float dis = sqrt(vIK[0] * vIK[0] + vIK[1] * vIK[1]);
+					if (dis > (l1 + l2)) {
+						printf("distancelong\n");
+						vIK[0] *= (l1 + l2) / dis;
+						vIK[1] *= (l1 + l2) / dis;
+						while (sqrt(vIK[0] * vIK[0] + vIK[1] * vIK[1]) >= l1 + l2) {
+							vIK[0] *= 0.98; vIK[1] *= 0.99;
+						}
+					}
+					else if (dis < (l2 - l1)) {
+						printf("distanceshort\n");
+						vIK[0] *= (l2 - l1) / dis * 1.05;
+						vIK[1] *= (l2 - l1) / dis * 1.05;
+						while (sqrt(vIK[0] * vIK[0] + vIK[1] * vIK[1]) <= l2 - l1) {
+							vIK[0] *= 1.02; vIK[1] *= 1.02;
+						}
+					}
+					std::cout << vIK << " distance:" << sqrt(vIK[0] * vIK[0] + vIK[1] * vIK[1]) << std::endl;
+					// calculate alpha1 and alpha2
+					float x, y; // target point
+					if (vIK[1] < 0) {
+						x = -vIK[1], y = vIK[0];
+						alpha2 = acosf((x*x + y * y - l1 * l1 - l2 * l2) / (2 * l1*l2));
+						//alpha1 = (-l1 * sinf(alpha2)*x + (l1 + l2 * cosf(alpha2))*y) / (l1 * sinf(alpha2)*y + (l1 + l2 * cosf(alpha2))*x);
+						float temp = acosf((x*x + y * y + l1 * l1 - l2 * l2) / (2 * l1*sqrt(x*x + y * y)));
+						alpha1 = atanf(y / x) - temp;
+						alpha2 = alpha2 / M_PI * 180.0f + 30.0f;
+						alpha1 = alpha1 / M_PI * 180.0f;
+					}
+					else if (vIK[0] >= 0) {
+						x = vIK[0], y = vIK[1];
+						alpha2 = acosf((x*x + y * y - l1 * l1 - l2 * l2) / (2 * l1*l2));
+						//alpha1 = (-l1 * sinf(alpha2)*x + (l1 + l2 * cosf(alpha2))*y) / (l1 * sinf(alpha2)*y + (l1 + l2 * cosf(alpha2))*x);
+						float temp = acosf((x*x + y * y + l1 * l1 - l2 * l2) / (2 * l1*sqrt(x*x + y * y)));
+						alpha1 = atanf(y / x) - temp;
+						alpha2 = alpha2 / M_PI * 180.0f + 30.0f;
+						alpha1 = alpha1 / M_PI * 180.0f + 90.0f;
+					}
+					else {
+						x = -vIK[0], y = vIK[1];
+						alpha2 = acosf((x*x + y * y - l1 * l1 - l2 * l2) / (2 * l1*l2));
+						//alpha1 = (-l1 * sinf(alpha2)*x + (l1 + l2 * cosf(alpha2))*y) / (l1 * sinf(alpha2)*y + (l1 + l2 * cosf(alpha2))*x);
+						float temp = acosf((x*x + y * y + l1 * l1 - l2 * l2) / (2 * l1*sqrt(x*x + y * y)));
+						alpha1 = atanf(y / x) - temp;
+						alpha2 = -(alpha2 / M_PI * 180.0f - 30.0f);
+						alpha1 = -(alpha1 / M_PI * 180.0f + 90.0f);
+					}
+
+					if (VAL(IK_CONSTRAINT_SWITCH)) {
+						alpha1 = abs(alpha1) > VAL(IK_ALPHA_COS) ? alpha1 / abs(alpha1) * VAL(IK_ALPHA_COS) : alpha1;
+						alpha2 = abs(alpha2) > VAL(IK_BETA_COS) ? alpha2 / abs(alpha2) * VAL(IK_BETA_COS) : alpha2;
+					}
+
+					printf("%f %f\n", alpha2, alpha1);
+					glRotatef(alpha1, 0, 0, 1);
+				}
+				else {
+					glRotated(VAL(RIGHT_BACK_THETA), 1, 0, 0);
+					glRotated(VAL(RIGHT_BACK_ANGLE1), 0, 0, 1);
+				}
+
+				animate(RIGHT_BACK_ANGLE1);
+
+				glPushMatrix();
+				glRotated(-180, 0, 0, 1);
+				glScaled(backLegSize, 2.5 + aux, backLegSize);
+				drawTextureBox(1, 1, 1);
+				glPopMatrix();
+
+
+				glTranslated(0, -2.5 + aux, 0);
+				// rotate
+				if (VAL(IK_SWITCH)) glRotatef(alpha2, 0, 0, 1);
+				else glRotated(VAL(RIGHT_BACK_ANGLE2), 0, 0, 1);
+				animate(RIGHT_BACK_ANGLE2);
+
+				if (VAL(LV_DETAIL) > 2) {
+
+					glRotated(-30, 0, 0, 1);
+					glPushMatrix();
+					glRotated(-180, 0, 0, 1);
+					glScaled(backLegSize, 3, backLegSize);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+
+					glTranslated(0, -3 + 3 * aux, 0);
+
+					// rotate
+					glRotated(VAL(RIGHT_BACK_ANGLE3), 0, 0, 1);
+					animate(RIGHT_BACK_ANGLE3);
+					glRotated(30, 0, 0, 1);
+
+					if (VAL(LV_DETAIL) > 3) {
+
+						glPushMatrix();
+						glRotated(-180, 0, 0, 1);
+						glScaled(1, 0.3, backLegSize);
+						drawTextureBox(1, 1, 1);
+						glPopMatrix();
+					}
+				}
+				glPopMatrix();
+
+
+
+
+
+				// left
+				backLegZ = 1 - backLegSize;
+
+				glPushMatrix();
+				glTranslated(backLegX, backLegY + aux, backLegZ);
+				// rotate
+				glRotated(VAL(LEFT_BACK_ANGLE1), 0, 0, 1);
+				animate(LEFT_BACK_ANGLE1);
+
+				glPushMatrix();
+				glRotated(-180, 0, 0, 1);
+				glScaled(backLegSize, 2.5 + aux, backLegSize);
+				drawTextureBox(1, 1, 1);
+				glPopMatrix();
+
+
+				glTranslated(0, -2.5 + aux, 0);
+				// rotate
+				glRotated(VAL(LEFT_BACK_ANGLE2), 0, 0, 1);
+				animate(LEFT_BACK_ANGLE2);
+
+				if (VAL(LV_DETAIL) > 2) {
+					glRotated(-30, 0, 0, 1);
+					glPushMatrix();
+					glRotated(-180, 0, 0, 1);
+					glScaled(backLegSize, 3, backLegSize);
+					drawTextureBox(1, 1, 1);
+					glPopMatrix();
+
+					glTranslated(0, -3 + 3 * aux, 0);
+
+					// rotate
+					glRotated(VAL(LEFT_BACK_ANGLE3), 0, 0, 1);
+					animate(LEFT_BACK_ANGLE3);
+					glRotated(30, 0, 0, 1);
+
+					if (VAL(LV_DETAIL) > 3) {
+						glPushMatrix();
+						glRotated(-180, 0, 0, 1);
+						glScaled(1, 0.3, backLegSize);
+						drawTextureBox(1, 1, 1);
+						glPopMatrix();
+					}
+				}
+				glPopMatrix();
+
+
+
+				// tail 
+				glPushMatrix();
+				glTranslated(4.5, 2, -0.1);
+				glRotated(VAL(TAIL_ANGLE_X), 1, 0, 0);
+				glRotated(VAL(TAIL_ANGLE_Y), 0, 1, 0);
+
+				if (VAL(CHEERFULNESS) > 0 && hasDiffLegParam) {
+					shouldMoveTail = 1;
+				}
+				moveTail();
+
+				glRotated(-150 + VAL(TAIL_ANGLE_Z), 0, 0, 1);
+				glScaled(0.2, 2.5, 0.2);
+				drawTextureBox(1, 1, 1);
+				glPopMatrix();
+
+			}
+
+			glPopMatrix();
+			glDisable(GL_STENCIL_TEST);
+		}
+
 		if (VAL(LSYSTEM_SWITCH)) {
 			std::vector<char> sen = gsentence(VAL(LSYSTEM_STAGE));
 			glPushMatrix();
@@ -1173,6 +1821,7 @@ int main()
     controls[CATMULL_ROM_TENSION] = ModelerControl("Catmull-Rom Tension", 0, 3, 0.01f, 1.5f);
 	controls[SKYBOX] = ModelerControl("Show SKYBOX", 0, 1, 1, 0);
 	controls[HEIGHT_FIELD] = ModelerControl("Show Height Field", 0, 1, 1, 0);
+	controls[MIRROR] = ModelerControl("Show Mirror", 0, 1, 1, 0);
 
 	/* hook particle system to modeler app */
 	ParticleSystem * ps = new ParticleSystem();
