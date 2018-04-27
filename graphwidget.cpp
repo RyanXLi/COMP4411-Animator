@@ -469,6 +469,7 @@ int GraphWidget::handle(int event)
 
 //ADDED
 void GraphWidget::translateToC1() {
+
     m_pcrvvCurves[m_iCurrCurve]->setEvaluator(m_ppceCurveEvaluators[CURVE_TYPE_C1]);
     ModelerApplication::Instance()->catmullPoints = m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts;
     m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts.clear();
