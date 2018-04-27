@@ -7,6 +7,8 @@
 #include <iostream>
 #include <cmath>
 
+#define ERR 0.00001
+
 //using namespace std;
 
 class Point
@@ -44,8 +46,19 @@ public:
         return{ this->x - p2.x, this->y - p2.y };
     }
 
+    Point operator-() {
+        return{ -(this->x), - (this->y) };
+    }
+
     Point operator*(float f) {
         return{ this->x * f, this->y * f };
+    }
+
+    bool operator==(const Point p2) const {
+        return{
+            fabs(this->x - p2.x) <= ERR
+            && fabs(this->y - p2.y) <= ERR
+        };
     }
 };
 

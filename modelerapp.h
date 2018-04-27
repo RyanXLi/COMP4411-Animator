@@ -5,6 +5,9 @@
 #ifndef MODELERAPP_H
 #define MODELERAPP_H
 
+#include <vector>
+#include "point.h"
+
 #include "modelerview.h"
 
 struct ModelerControl
@@ -67,6 +70,13 @@ public:
 
     //ADDED
     float tension = 0.5;
+    std::vector<Point> bezierPoints;
+    std::vector<Point> catmullPoints;
+    std::vector<Point> prevC1Points;
+    bool isDrawingCatmull = FALSE;
+    bool catmullDragged = FALSE;
+    int indexDraggedBezier = -1;
+
     //ADDED END
 
 private:

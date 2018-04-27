@@ -21,7 +21,8 @@
 #define CURVE_TYPE_BEZIER 2
 #define CURVE_TYPE_CATMULLROM 3
 #define CURVE_TYPE_C2INTERPOLATING 4
-#define CURVE_TYPE_COUNT 5
+#define CURVE_TYPE_C1 5
+#define CURVE_TYPE_COUNT 6
 
 #define CURVE_COLOR_COUNT 6
 
@@ -114,6 +115,9 @@ public:
 	Point windowToGrid( Point p ) ;
 	Point gridToWindow( Point p ) ;
 
+    void translateToC1();
+    //void translateBack();
+
 protected:
 	int m_iEventToDo;
 	bool m_bHasEvent;
@@ -130,6 +134,7 @@ protected:
 	bool m_bHasCtrlPtSelection;
 	bool m_bHasZoomSelection;
 	Point m_ptDragStart; // in window coordinates
+    Point m_ptCatBDragStart;
 
 	int m_iCurrCurve;
 	mutable Fl_Color m_flcCurrCurve;

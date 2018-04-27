@@ -356,6 +356,25 @@ void ModelerUI::cb_zoomAll(Fl_Button* o, void* v)
 	((ModelerUI*)(o->user_data()))->cb_zoomAll_i(o,v);
 }
 
+void ModelerUI::cb_changeBezier(Fl_Button* o, void* v) {
+    ((ModelerUI*)(o->user_data()))->cb_changeBezier_i(o, v);
+}
+
+inline void ModelerUI::cb_changeBezier_i(Fl_Button*, void*) {
+    m_pwndGraphWidget->translateToC1();
+    m_pwndGraphWidget->redraw();
+}
+
+
+//void ModelerUI::cb_changeBack(Fl_Button* o, void* v) {
+//    ((ModelerUI*)(o->user_data()))->cb_changeBack_i(o, v);
+//}
+//
+//inline void ModelerUI::cb_changeBack_i(Fl_Button*, void*) {
+//    //m_pwndGraphWidget->translateBack();
+//    m_pwndGraphWidget->redraw();
+//}
+
 inline void ModelerUI::cb_curveType_i(Fl_Choice*, void*) 
 {
 	m_pwndGraphWidget->currCurveType(m_pchoCurveType->value());
@@ -892,6 +911,8 @@ m_bSaveMovie(false)
 	m_ptabTab->callback((Fl_Callback*)cb_tab);
 	m_pwndGraphWidget->callback((Fl_Callback*)cb_graphWidget);
 	m_pbtZoomAll->callback((Fl_Callback*)cb_zoomAll);
+    m_pbtChangeBezier->callback((Fl_Callback*)cb_changeBezier);
+    //m_pbtChangeBack->callback((Fl_Callback*)cb_changeBack);
 	m_pchoCurveType->callback((Fl_Callback*)cb_curveType);
 	m_pbtWrap->callback((Fl_Callback*)cb_wrap);
 	m_pbtSetCamKeyFrame->callback((Fl_Callback*)cb_setCamKeyFrame);

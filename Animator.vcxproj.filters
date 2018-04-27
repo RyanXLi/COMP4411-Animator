@@ -114,6 +114,9 @@
     <ClCompile Include="force.cpp">
       <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
+    <ClCompile Include="C1CurveEvaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h">
@@ -192,6 +195,12 @@
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
     <ClInclude Include="CurveGlobals.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="HigherOrderEvaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="C1CurveEvaluator.h">
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
     <ClInclude Include="force.h">

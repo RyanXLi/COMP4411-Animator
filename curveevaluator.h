@@ -12,7 +12,7 @@ class CurveEvaluator
 {
 public:
 	virtual ~CurveEvaluator(void);
-	virtual void evaluateCurve(const std::vector<Point>& control_points, 
+	virtual void evaluateCurve(std::vector<Point>& control_points, 
 							   std::vector<Point>& evaluated_curve_points, 
 							   const float& animation_length, 
 							   const bool& wrap_control_points) const = 0;

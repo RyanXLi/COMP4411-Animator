@@ -105,6 +105,14 @@ private:
 	static void cb_graphWidget(GraphWidget*, void*);
 	inline void cb_zoomAll_i(Fl_Button*, void*);
 	static void cb_zoomAll(Fl_Button*, void*);
+
+    inline void cb_changeBezier_i(Fl_Button*, void*);
+    static void cb_changeBezier(Fl_Button * o, void * v);
+
+    //inline void cb_changeBack_i(Fl_Button*, void*);
+    //static void cb_changeBack(Fl_Button * o, void * v);
+
+
 	inline void cb_curveType_i(Fl_Choice*, void*);
 	static void cb_curveType(Fl_Choice*, void*);
 	inline void cb_wrap_i(Fl_Light_Button*, void*);
