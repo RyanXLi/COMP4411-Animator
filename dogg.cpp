@@ -9,6 +9,8 @@
 #include "modelerglobals.h"
 #include "particleSystem.h"
 
+GLuint DLid;
+
 Mat4d reflect_plane(double a, double b, double c, double d) {
 	return Mat4d(
 		1 - 2 * a*a, -2 * a*b, -2 * a*c, -2 * a*d,
@@ -17,6 +19,25 @@ Mat4d reflect_plane(double a, double b, double c, double d) {
 		0, 0, 0, 1
 	);
 }
+
+GLuint createDL() {
+	GLuint snowManDL;
+
+	// Create the id for the list
+	snowManDL = glGenLists(1);
+
+	// start list
+	glNewList(snowManDL, GL_COMPILE);
+
+	// call the function that contains the rendering commands
+	drawTorus(0.8, 0.2);
+
+	// endList
+	glEndList();
+
+	return(snowManDL);
+}
+
 
 class camera;
 // To make a DoggModel, we inherit off of ModelerView
@@ -115,6 +136,9 @@ void DoggModel::draw()
 	ModelerView::draw();
 	//drawAxis();
 	Mat4f CameraM = getModelViewMatrix();
+
+	// gllist test
+	DLid = createDL();
 
     if (VAL(RESET_LEG)) { DoggModel::resetLeg(); }
 
@@ -378,7 +402,8 @@ void DoggModel::draw()
                 glPushMatrix();
                 glTranslated(1.5, 1, 1);
                 glRotated(90, 0, 1, 0);
-                drawTorus(0.8, 0.2);
+                //drawTorus(0.8, 0.2);
+				glCallList(DLid);
                 glPopMatrix();
             }
 
@@ -753,10 +778,10 @@ void DoggModel::draw()
 		
 		if (VAL(MIRROR)) {
 			glEnable(GL_STENCIL_TEST);
-			glStencilFunc(GL_ALWAYS, 1, 0xFF); // Set any stencil to 1
+			glStencilFunc(GL_ALWAYS, 1, 0xFF); 
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			glStencilMask(0xFF); // Write to stencil buffer
-			glClear(GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
+			glStencilMask(0xFF); 
+			glClear(GL_STENCIL_BUFFER_BIT); 
 		}
 		//draw a mirror base
 		glPushMatrix();
@@ -768,9 +793,8 @@ void DoggModel::draw()
 		glPopMatrix();
 
 		if (VAL(MIRROR)) {
-			// Draw cube reflection
-			glStencilFunc(GL_EQUAL, 1, 0xFF); // Pass test if stencil value is 1
-			glStencilMask(0x00); // Don't write anything to stencil buffer
+			glStencilFunc(GL_EQUAL, 1, 0xFF); 
+			glStencilMask(0x00); 
 
 			glPushMatrix();
 			Mat4d RM = reflect_plane(0, 1, 0, 3.5);
