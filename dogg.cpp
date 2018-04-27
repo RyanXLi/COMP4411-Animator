@@ -160,6 +160,8 @@ void DoggModel::draw()
 
 	if (VAL(SKYBOX)) { drawSkybox(); }
 
+    glBindTexture(GL_TEXTURE_2D, tex);
+
 	if (VAL(IK_SWITCH)) {
 		glPushMatrix();
 		glTranslatef(VAL(IK_X), VAL(IK_Y), VAL(IK_Z));
