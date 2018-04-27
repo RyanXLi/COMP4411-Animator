@@ -78,7 +78,6 @@ void ParticleSystem::stopSimulation(float t)
 	// These values are used by the UI
 	simulate = false;
 	dirty = true;
-
 }
 
 /** Reset the simulation */

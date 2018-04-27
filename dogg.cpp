@@ -249,7 +249,7 @@ void DoggModel::draw()
 			glPushMatrix();
 			glTranslated(0.5, 3.0, 1);
 			glRotated(-90, 1, 0, 0);
-			drawAxis();
+			//drawAxis();
 			drawHeightfield();
 			glPopMatrix();
 		}
@@ -786,7 +786,7 @@ void DoggModel::draw()
 		//draw a mirror base
 		glPushMatrix();
 		glDepthMask(GL_FALSE);
-		drawAxis();
+		//drawAxis();
 		glTranslated(-5, -3.5, -5);
 		drawBox(10, 0.01f, 10);
 		glDepthMask(GL_TRUE);

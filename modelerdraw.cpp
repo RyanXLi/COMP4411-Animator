@@ -488,13 +488,19 @@ void drawTriangle( double x1, double y1, double z1,
         d = x3-x1;
         e = y3-y1;
         f = z3-z1;
-        
+		if (VAL(APPLY_TEX)) {
+			glEnable(GL_TEXTURE_2D);
+		}
         glBegin( GL_TRIANGLES );
         glNormal3d( b*f - c*e, c*d - a*f, a*e - b*d );
-        glVertex3d( x1, y1, z1 );
-        glVertex3d( x2, y2, z2 );
-        glVertex3d( x3, y3, z3 );
+		glTexCoord2f(1.0, 1.0); glVertex3d( x1, y1, z1 );
+		glTexCoord2f(0.0, 1.0); glVertex3d( x2, y2, z2 );
+		glTexCoord2f(1.0, 0.0); glVertex3d( x3, y3, z3 );
         glEnd();
+
+		if (VAL(APPLY_TEX)) {
+			glDisable(GL_TEXTURE_2D);
+		}
     }
 }
 
