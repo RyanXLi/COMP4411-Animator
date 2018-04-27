@@ -129,14 +129,14 @@ ModelerUIWindows::ModelerUIWindows() {
             o->labelsize(12);
             o->user_data((void*)(this));
           }
-          { Fl_Button* o = m_pbtChangeBezier = new Fl_Button(400, 470, 50, 20, "Bezier");
+          { Fl_Button* o = m_pbtChangeBezier = new Fl_Button(420, 470, 70, 20, "Bezier");
           o->labelsize(12);
           o->user_data((void*)(this));
           }
-          { Fl_Button* o = m_pbtChangeBack = new Fl_Button(450, 470, 50, 20, "Back");
-          o->labelsize(12);
-          o->user_data((void*)(this));
-          }
+          //{ Fl_Button* o = m_pbtChangeBack = new Fl_Button(450, 470, 50, 20, "Back");
+          //o->labelsize(12);
+          //o->user_data((void*)(this));
+          //}
           o->end();
         }
         o->end();
