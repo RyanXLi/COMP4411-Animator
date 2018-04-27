@@ -77,6 +77,8 @@ public:
     bool catmullDragged = FALSE;
     int indexDraggedBezier = -1;
 
+    bool adaptive = FALSE;
+    float flatThreshold = 0.01;
     //ADDED END
 
 private:

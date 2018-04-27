@@ -48,6 +48,10 @@ enum SampleModelControls
     BSPLINE_Y,
     BSPLINE_Z,
 
+    ADAPTIVE,
+    FLAT_THRES,
+
+
     NUMCONTROLS
 };
 
