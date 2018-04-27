@@ -41,6 +41,7 @@ enum SampleModelControls
     CATMULL_ROM_TENSION,
 	SKYBOX,
 	HEIGHT_FIELD,
+	MIRROR,
 
     BSPLINE_SURFACE,
     BSPLINE_X,
