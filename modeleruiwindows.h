@@ -55,6 +55,8 @@ public:
   static Fl_Menu_Item menu_m_pchoCurveType[];
   Fl_Light_Button *m_pbtWrap;
   Fl_Button *m_pbtZoomAll;
+  Fl_Button *m_pbtChangeBezier;
+  Fl_Button *m_pbtChangeBack;
   Fl_Button *m_pbtStepBack;
   Fl_Button *m_pbtPlay;
   Fl_Button *m_pbtStepForw;

@@ -223,6 +223,32 @@ int Curve::getClosestControlPoint(const Point& point, Point& ptCtrlPt) const
 	return iMinDistPt;
 }
 
+//ADDED
+int Curve::getClosestCatmullBezierPoint(const Point& point, Point& ptCtrlPt) const {
+
+    int iMinDistPt = 0;
+    float fMinDistSquared = FLT_MAX;
+
+    
+
+    for (int i = 0; i < ModelerApplication::Instance()->bezierPoints.size(); ++i) {
+        float delta_x = (ModelerApplication::Instance()->bezierPoints[i].x - point.x);
+        float delta_y = (ModelerApplication::Instance()->bezierPoints[i].y - point.y);
+
+        float fDistSquared = delta_x * delta_x + delta_y * delta_y;
+
+        if (fDistSquared < fMinDistSquared) {
+            iMinDistPt = i;
+            fMinDistSquared = fDistSquared;
+            ptCtrlPt = ModelerApplication::Instance()->bezierPoints[i];
+        }
+    }
+
+    return iMinDistPt;
+}
+//ADDED END
+
+
 void Curve::getClosestPoint(const Point& pt, Point& ptClosestPt) const
 {
 	reevaluate();
@@ -401,6 +427,27 @@ void Curve::drawControlPoints() const
 	glEnd();
 
 	glPointSize(fPointSize);
+}
+
+void Curve::drawCatmullBezierPoints() const {
+    reevaluate();
+
+    double fPointSize;
+    glGetDoublev(GL_POINT_SIZE, &fPointSize);
+    glPointSize(7.0);
+
+    glColor3d(0, 1, 0);
+    glBegin(GL_POINTS);
+
+    for (int i = 0; i < ModelerApplication::Instance()->bezierPoints.size(); i++) {
+        if (i % 4 != 1 && i % 4 != 2) { continue; }
+        Point p = ModelerApplication::Instance()->bezierPoints[i];
+        glVertex2f(p.x, p.y);
+    }
+
+    glEnd();
+
+    glPointSize(fPointSize);
 }
 
 void Curve::sortControlPoints() const

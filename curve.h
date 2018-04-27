@@ -8,6 +8,7 @@
 #include <string>
 
 #include "Point.h"
+#include "ModelerApp.h"
 
 class CurveEvaluator;
 
@@ -33,6 +34,7 @@ public:
 		ptCtrlPt = m_ptvCtrlPts[iCtrlPt];
 	}
 	int getClosestControlPoint(const Point& point, Point& ptCtrlPt) const;
+    int getClosestCatmullBezierPoint(const Point & point, Point & ptCtrlPt) const;
 	void getClosestPoint(const Point& pt, Point& ptClosestPt) const;
 	float getDistanceToCurve(const Point& normalized_point) const;
 	void moveControlPoint(const int iCtrlPt, const Point& ptNewPt);
@@ -46,6 +48,11 @@ public:
 	bool wrap() const;
 	void drawEvaluatedCurveSegments(void) const;
 	void drawControlPoints(void) const;
+
+    //ADDED
+    void drawCatmullBezierPoints() const;
+    //ADDED END
+
 	void drawControlPoint(int iCtrlPt) const;
 	void drawCurve(void) const;
 	void invalidate(void) const;
@@ -53,15 +60,17 @@ public:
 	void toStream(std::ostream& output_stream) const;
 	void fromStream(std::istream& input_stream);
 
+    mutable std::vector<Point> m_ptvCtrlPts;
+
 protected:
 	void init(const float fStartYValue = 0.0f);
-	void reevaluate(void) const;
+    void reevaluate(void) const;
 	// this must be called when a control point is added
 	void sortControlPoints(void) const;
 
 	const CurveEvaluator* m_pceEvaluator;
 
-	mutable std::vector<Point> m_ptvCtrlPts;
+
 	mutable std::vector<Point> m_ptvEvaluatedCurvePts;
 	mutable bool m_bDirty;
 

@@ -29,6 +29,7 @@
 #include "BezierCurveEvaluator.h" 
 #include "CatmullRomEvaluator.h"
 #include "C2CurveEvaluator.h"
+#include "C1CurveEvaluator.h"
 
 #include "modelerapp.h"
 
@@ -127,6 +128,7 @@ m_flcCurrCurve(FL_BLACK)
     m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new CatmullRomEvaluator();
 	// Note that C2-Interpolating curve is not a requirement
 	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new C2CurveEvaluator();
+    m_ppceCurveEvaluators[CURVE_TYPE_C1] = new C1CurveEvaluator();
 
 }
 
@@ -464,6 +466,33 @@ int GraphWidget::handle(int event)
 	return 1;
 }
 
+
+//ADDED
+void GraphWidget::translateToC1() {
+    m_pcrvvCurves[m_iCurrCurve]->setEvaluator(m_ppceCurveEvaluators[CURVE_TYPE_C1]);
+    ModelerApplication::Instance()->catmullPoints = m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts;
+    m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts.clear();
+
+    std::cout << ModelerApplication::Instance()->catmullPoints.size() << std::endl;
+    std::cout << ModelerApplication::Instance()->bezierPoints.size() << std::endl;
+
+    int len = min(ModelerApplication::Instance()->catmullPoints.size(), ModelerApplication::Instance()->bezierPoints.size());
+    for (int i = 0; i < len; i++) {
+        m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts.push_back(ModelerApplication::Instance()->catmullPoints[i]);
+        m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts.push_back(ModelerApplication::Instance()->bezierPoints[i]);
+    }
+    ModelerApplication::Instance()->prevC1Points = m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts;
+}
+
+//void GraphWidget::translateBack() {
+//    m_pcrvvCurves[m_iCurrCurve]->setEvaluator(m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]);
+//    m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts.clear();
+//    m_pcrvvCurves[m_iCurrCurve]->m_ptvCtrlPts = ModelerApplication::Instance()->catmullPoints;
+//}
+//ADDED END
+
+
+
 float GraphWidget::topValue() const
 {
 	if (m_iCurrCurve >= 0) {
@@ -558,13 +587,30 @@ void GraphWidget::selectAddCtrlPt(const int iMouseX, const int iMouseY)
 	if (m_iCurrCurve >= 0) {
 		Point ptMouse(iMouseX, iMouseY);
 		Point ptCtrlPt;
+        Point ptCatmullBezierPt;
 		m_ptDragStart = ptMouse;
+        m_ptCatBDragStart = ptMouse;
 
 		// find the closest control point
 		Point ptMouseInCurveCoord = windowToCurve(m_iCurrCurve, ptMouse);
 		int iClosestCtrlPt = m_pcrvvCurves[m_iCurrCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptCtrlPt);
+        int iClosestCatmullBezierPt = m_pcrvvCurves[m_iCurrCurve]->getClosestCatmullBezierPoint(ptMouseInCurveCoord, ptCatmullBezierPt);
 
 		Point ptCtrlPtInWindowCoord = curveToWindow(m_iCurrCurve, ptCtrlPt);
+        Point ptCatBPtInWindowCoord = curveToWindow(m_iCurrCurve, ptCatmullBezierPt);
+
+        // if there is nearby catB point, select it and return
+        //if (fabs(ptCatBPtInWindowCoord.x - ptMouse.x) * 2 <= PICK_WINDOW_SIZE &&
+        //    fabs(ptCatBPtInWindowCoord.y - ptMouse.y) * 2 <= PICK_WINDOW_SIZE) {
+        //    deselectCtrlPts();
+        //    ModelerApplication::Instance()->indexDraggedBezier = iClosestCatmullBezierPt;
+        //    std::cout << "Return" << std::endl;
+        //    return;
+        //}
+
+        //std::cout << "No return" << std::endl;
+
+        ModelerApplication::Instance()->catmullDragged = FALSE;
 
 		if (fabs(ptCtrlPtInWindowCoord.x - ptMouse.x) * 2 <= PICK_WINDOW_SIZE &&
 			fabs(ptCtrlPtInWindowCoord.y - ptMouse.y) * 2 <= PICK_WINDOW_SIZE) {
@@ -584,6 +630,7 @@ void GraphWidget::selectAddCtrlPt(const int iMouseX, const int iMouseY)
 		}
 
 		// no control point is near the mouse cursor
+
 
 		// see if it's a currently selected control point 
 		for (int i = 0; i < m_ivActiveCurves.size(); ++i) {
@@ -612,6 +659,7 @@ void GraphWidget::selectAddCtrlPt(const int iMouseX, const int iMouseY)
 		deselectCtrlPts();
 		m_ivvCurrCtrlPts[m_iCurrCurve].push_back(
 			m_pcrvvCurves[m_iCurrCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptDummy));
+
 	}
 }
 
@@ -642,20 +690,36 @@ void GraphWidget::dragCtrlPt(const int iMouseX, const int iMouseY)
 		ptMouse.x = min((float)(w() - 1), ptMouse.x);
 		ptMouse.y = max(0.0f, ptMouse.y); 
 		ptMouse.y = min((float)(h() - 1), ptMouse.y);
+
+
 		for (int i = 0; i < m_ivActiveCurves.size(); ++i) {
 			int iCurve = m_ivActiveCurves[i];
 
 			Point ptMouseInCurveCoord = windowToCurve(iCurve, ptMouse);
 			Point ptDragStartInCurveCoord = windowToCurve(iCurve, m_ptDragStart);
 			Point ptOffset(ptMouseInCurveCoord.x - ptDragStartInCurveCoord.x,
-
 			ptMouseInCurveCoord.y - ptDragStartInCurveCoord.y);
+
+            //// catmull bezier point:
+            //if (ModelerApplication::Instance()->indexDraggedBezier != -1) {
+            //    std::cout << "ptMouseInCurveCoord: " << ptMouseInCurveCoord << std::endl;
+            //    std::cout << "DraggedBezier: " << ModelerApplication::Instance()->bezierPoints[ModelerApplication::Instance()->indexDraggedBezier] << std::endl;
+            //    ModelerApplication::Instance()->bezierPoints[ModelerApplication::Instance()->indexDraggedBezier] = ptMouseInCurveCoord;
+            //    ModelerApplication::Instance()->catmullDragged = TRUE;
+            //    ModelerApplication::Instance()->indexDraggedBezier = -1;
+            //    return;
+            //}
 
 			m_pcrvvCurves[iCurve]->moveControlPoints(m_ivvCurrCtrlPts[iCurve], ptOffset,
 				m_cdvCurveDomains[iCurve].minimum(), m_cdvCurveDomains[iCurve].maximum());
 		}
 
 		m_ptDragStart = ptMouse;
+
+
+
+
+
 	}
 }
 
@@ -924,6 +988,12 @@ void GraphWidget::drawCurve(int iCurve, int iColor) const
 	if (iCurve == m_iCurrCurve)
 		glLineWidth(1.0);
 	m_pcrvvCurves[iCurve]->drawControlPoints();
+
+    //// ADDED
+    //if (ModelerApplication::Instance()->isDrawingCatmull) {
+    //    m_pcrvvCurves[iCurve]->drawCatmullBezierPoints();
+    //}
+    //// ADDED END
 
 	glColor3f(1.0f, 1.0f, 1.0f); // white
 	for (int i = 0; i < m_ivvCurrCtrlPts[iCurve].size(); ++i) {

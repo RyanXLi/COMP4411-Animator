@@ -1,13 +1,17 @@
 #include "LinearCurveEvaluator.h"
 #include <assert.h>
+#include "modelerapp.h"
 
-void LinearCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts, 
+void LinearCurveEvaluator::evaluateCurve(std::vector<Point>& ptvCtrlPts, 
 										 std::vector<Point>& ptvEvaluatedCurvePts, 
 										 const float& fAniLength, 
 										 const bool& bWrap) const
 {
 	int iCtrlPtCount = ptvCtrlPts.size();
 
+    ModelerApplication::Instance()->bezierPoints.clear();
+    ModelerApplication::Instance()->isDrawingCatmull = FALSE;
+    
 	ptvEvaluatedCurvePts.assign(ptvCtrlPts.begin(), ptvCtrlPts.end());
 
 	float x = 0.0;

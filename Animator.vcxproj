@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="bezierCurveEvaluator.cpp" />
     <ClCompile Include="bSplineEvaluator.cpp" />
+    <ClCompile Include="C1CurveEvaluator.cpp" />
     <ClCompile Include="C2CurveEvaluator.cpp" />
     <ClCompile Include="catmullRomEvaluator.cpp" />
     <ClCompile Include="curve.cpp">
@@ -263,11 +264,13 @@
   <ItemGroup>
     <ClInclude Include="BezierCurveEvaluator.h" />
     <ClInclude Include="bSplineEvaluator.h" />
+    <ClInclude Include="C1CurveEvaluator.h" />
     <ClInclude Include="C2CurveEvaluator.h" />
     <ClInclude Include="CatmullRomEvaluator.h" />
     <ClInclude Include="curve.h" />
     <ClInclude Include="curveevaluator.h" />
     <ClInclude Include="CurveGlobals.h" />
+    <ClInclude Include="HigherOrderEvaluator.h" />
     <ClInclude Include="linearcurveevaluator.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="modelerdraw.h" />
