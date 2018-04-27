@@ -7,6 +7,7 @@
 #include <math.h>
 #include <vector>
 #include "modelerglobals.h"
+#include "particleSystem.h"
 
 class camera;
 // To make a DoggModel, we inherit off of ModelerView
@@ -97,12 +98,14 @@ void DoggModel::draw()
     // This call takes care of a lot of the nasty projection 
     // matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
-
+	
 	if (VAL(FRAME_ALL)) { 
 		DoggModel::frameAll(VAL(XPOS), VAL(YPOS), VAL(ZPOS));
 	}
 	
 	ModelerView::draw();
+	//drawAxis();
+	Mat4f CameraM = getModelViewMatrix();
 
     if (VAL(RESET_LEG)) { DoggModel::resetLeg(); }
 
@@ -112,6 +115,8 @@ void DoggModel::draw()
 
 	setAmbientColor(.1f,.1f,.1f);
 	setDiffuseColor(1.0f, 1.0f, 1.0f);
+
+	if (VAL(SKYBOX)) { drawSkybox(); }
 
 	if (VAL(IK_SWITCH)) {
 		glPushMatrix();
@@ -229,6 +234,16 @@ void DoggModel::draw()
                 glPushMatrix();
                 glRotated(90, 0, 1, 0);
                 drawCylinder(3, 0.8, 0.8);
+
+				/*  particle system */
+				glTranslated(0, 0, 3);
+				Mat4f CurrModelM = getModelViewMatrix();
+				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+				float currt = ModelerApplication::Instance()->GetTime();
+				int currfps = ModelerApplication::Instance()->GetFps();
+				cout << "#frame:" <<(currt*currfps) <<" "<<((int)currt*currfps % currfps == 0) << endl;
+				if ((int)(currt*currfps) % currfps == 0) ps->spawnParticles(CameraM, CurrModelM, currt);
+
                 glPopMatrix();
 
                 // wing
@@ -1145,6 +1160,11 @@ int main()
 
     controls[WING_ANGLE] = ModelerControl("Wing Angle", -30, 30, 0.1f, 0);
     controls[CATMULL_ROM_TENSION] = ModelerControl("Catmull-Rom Tension", 0, 3, 0.01f, 1.5f);
+	controls[SKYBOX] = ModelerControl("SKYBOX", 0, 1, 1, 0);
+
+	/* hook particle system to modeler app */
+	ParticleSystem * ps = new ParticleSystem();
+	ModelerApplication::Instance()->SetParticleSystem(ps);
 
     ModelerApplication::Instance()->Init(&createDoggModel, controls, NUMCONTROLS);
 

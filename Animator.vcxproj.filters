@@ -11,9 +11,6 @@
     <Filter Include="Source Files\Model">
       <UniqueIdentifier>{c13a68f3-0c0b-4295-8b5a-b0e0f9aac99b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Particles">
-      <UniqueIdentifier>{f59d4eec-bac6-4bf1-9e53-cd77c53818fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{65742b23-666b-4a0d-a9df-ea4b6e431f37}</UniqueIdentifier>
     </Filter>
@@ -39,6 +36,9 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{133b5350-744c-4417-8892-0df5578ace47}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Model\Particles">
+      <UniqueIdentifier>{f59d4eec-bac6-4bf1-9e53-cd77c53818fd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -70,19 +70,19 @@
       <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="bitmap.cpp">
-      <Filter>Source Files\Particles</Filter>
+      <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
     <ClCompile Include="particle.cpp">
-      <Filter>Source Files\Particles</Filter>
+      <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
     <ClCompile Include="particleSystem.cpp">
-      <Filter>Source Files\Particles</Filter>
+      <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
     <ClCompile Include="point.cpp">
-      <Filter>Source Files\Particles</Filter>
+      <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
     <ClCompile Include="pointObj.cpp">
-      <Filter>Source Files\Particles</Filter>
+      <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
     <ClCompile Include="graphwidget.cpp">
       <Filter>Source Files\UI</Filter>
@@ -110,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="C2CurveEvaluator.cpp">
       <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="force.cpp">
+      <Filter>Source Files\Model\Particles</Filter>
     </ClCompile>
     <ClCompile Include="C1CurveEvaluator.cpp">
       <Filter>Source Files\Curves</Filter>
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="C1CurveEvaluator.h">
       <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="force.h">
+      <Filter>Header Files\Particles.</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

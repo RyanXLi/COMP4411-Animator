@@ -135,6 +135,7 @@ void ModelerView::draw()
 	// If particle system exists, draw it
 	ParticleSystem *ps = ModelerApplication::Instance()->GetParticleSystem();
 	if (ps != NULL) {
+		printf("cFaUP\n");
 		ps->computeForcesAndUpdateParticles(t);
 		ps->drawParticles(t);
 	}

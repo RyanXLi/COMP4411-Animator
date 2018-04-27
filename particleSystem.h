@@ -17,8 +17,11 @@
 #define __PARTICLE_SYSTEM_H__
 
 #include "vec.h"
-
-
+#include "mat.h"
+#include <vector>
+#include <map>
+#include "force.h"
+#include "particle.h"
 
 class ParticleSystem {
 
@@ -62,7 +65,11 @@ public:
 	// of baked particles (without leaking memory).
 	virtual void clearBaked();	
 
+	// Check whether the frame has been baked
+	virtual bool isBakedAt(float t);
 
+	// Spawn Particles at particular position
+	virtual void spawnParticles(Mat4f CameraM, Mat4f CurrModelM, float currt);
 
 	// These accessor fxns are implemented for you
 	float getBakeStartTime() { return bake_start_time; }
@@ -75,8 +82,8 @@ public:
 
 
 protected:
-	
-
+	vector<Particle> particle_vec;		// vector store all particles 
+	vector<Force*> force_vec;			// vector store all global forces
 
 	/** Some baking-related state **/
 	float bake_fps;						// frame rate at which simulation was baked
@@ -84,6 +91,7 @@ protected:
 										// These 2 variables are used by the UI for
 										// updating the grey indicator 
 	float bake_end_time;				// time at which baking ended
+	map<float, vector<Particle>> bake_storage; //data structure store baked particle states
 
 	/** General state variables **/
 	bool simulate;						// flag for simulation mode

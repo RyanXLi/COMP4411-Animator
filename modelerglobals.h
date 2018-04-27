@@ -39,6 +39,7 @@ enum SampleModelControls
 
     WING_ANGLE,
     CATMULL_ROM_TENSION,
+	SKYBOX,
     NUMCONTROLS
 };
 

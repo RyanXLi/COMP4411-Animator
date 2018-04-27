@@ -227,7 +227,7 @@ inline void ModelerUI::cb_aniLen_i(Fl_Menu_*, void*)
 	int iAniLen;
 	const char* szAniLen = NULL;
 	do {
-		szAniLen = fl_input("New Animation Length (in second) (1 ~ 3600)", "20");
+		szAniLen = fl_input("New Animation Length (in second) (1 ~ 3600)", "10");
 
 		if (szAniLen) {
 			iAniLen = atoi(szAniLen);
@@ -937,7 +937,7 @@ m_bSaveMovie(false)
 	m_poutPlayStart->value("0.00");
 	m_poutPlayEnd->value("20.00");
 
-	endTime(20.0f);
+	endTime(10.0f);
 }
 
 void ModelerUI::show() 

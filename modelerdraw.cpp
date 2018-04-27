@@ -3,11 +3,23 @@
 #include <GL/glu.h>
 #include <cstdio>
 #include <math.h>
+#include "vec.h"
+#include "mat.h"
 
 // ADDED
 #include "modelerapp.h"
 #include "modelerglobals.h"
+#include "bitmap.h"
 // END
+
+enum {
+	front,
+	left,
+	back,
+	right,
+	up,
+	bottom
+};
 
 // ********************************************************
 // Support functions from previous version of modeler
@@ -488,6 +500,137 @@ void drawTriangle( double x1, double y1, double z1,
 
 
 // ADDED
+void Skyboxloadbmp(unsigned char ** texture, const unsigned int orient, const GLuint texID) {
+	int width, height;
+	switch (orient) {
+	case 0:
+		texture[orient] = readBMP("front.bmp", width, height);
+		break;
+	case 1:
+		texture[orient] = readBMP("left.bmp", width, height);
+		break;
+	case 2:
+		texture[orient] = readBMP("back.bmp", width, height);
+		break;
+	case 3:
+		texture[orient] = readBMP("right.bmp", width, height);
+		break;
+	case 4:
+		texture[orient] = readBMP("up.bmp", width, height);
+		break;
+	case 5:
+		texture[orient] = readBMP("bottom.bmp", width, height);
+		break;
+	}
+	if (!texture[orient]) {
+		printf("load texture failed!\n");
+	}
+	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, texture[orient]);
+}
+
+
+void drawSkybox()
+{
+	ModelerDrawState *mds = ModelerDrawState::Instance();
+
+	_setupOpenGl();
+
+	if (mds->m_rayFile)
+	{
+		// Skip
+	}
+	else {
+		unsigned char *texture[6]; // front - 0 left - 1 back - 2 right - 3 up - 4 down - 5
+		//int tex_w[6], tex_h[6];
+		GLuint textureID[6];
+		glGenTextures(6, textureID);
+		//texture[0] = readBMP("front", tex_w[0], tex_h[0]);
+		for (unsigned int i = 0; i < 6; ++i) Skyboxloadbmp(texture, i, textureID[i]);
+		
+		int savemode;
+		glGetIntegerv(GL_MATRIX_MODE, &savemode);
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		
+		glScaled(50, 50, 50);
+		
+		glPushAttrib(GL_ENABLE_BIT);
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+
+		// Just in case we set all vertices to white.
+		// glColor4f(1, 1, 1, 1);
+
+		// Render the front quad
+		glBindTexture(GL_TEXTURE_2D, textureID[0]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(0.5f, -0.5f, -0.5f);
+		glTexCoord2f(1, 0); glVertex3f(-0.5f, -0.5f, -0.5f);
+		glTexCoord2f(1, 1); glVertex3f(-0.5f, 0.5f, -0.5f);
+		glTexCoord2f(0, 1); glVertex3f(0.5f, 0.5f, -0.5f);
+		glEnd();
+
+		// Render the left quad
+		glBindTexture(GL_TEXTURE_2D, textureID[1]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(0.5f, -0.5f, 0.5f);
+		glTexCoord2f(1, 0); glVertex3f(0.5f, -0.5f, -0.5f);
+		glTexCoord2f(1, 1); glVertex3f(0.5f, 0.5f, -0.5f);
+		glTexCoord2f(0, 1); glVertex3f(0.5f, 0.5f, 0.5f);
+		glEnd();
+
+		// Render the back quad
+		glBindTexture(GL_TEXTURE_2D, textureID[2]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-0.5f, -0.5f, 0.5f);
+		glTexCoord2f(1, 0); glVertex3f(0.5f, -0.5f, 0.5f);
+		glTexCoord2f(1, 1); glVertex3f(0.5f, 0.5f, 0.5f);
+		glTexCoord2f(0, 1); glVertex3f(-0.5f, 0.5f, 0.5f);
+
+		glEnd();
+
+		// Render the right quad
+		glBindTexture(GL_TEXTURE_2D, textureID[3]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-0.5f, -0.5f, -0.5f);
+		glTexCoord2f(1, 0); glVertex3f(-0.5f, -0.5f, 0.5f);
+		glTexCoord2f(1, 1); glVertex3f(-0.5f, 0.5f, 0.5f);
+		glTexCoord2f(0, 1); glVertex3f(-0.5f, 0.5f, -0.5f);
+		glEnd();
+
+		// Render the top quad
+		glBindTexture(GL_TEXTURE_2D, textureID[4]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 1); glVertex3f(-0.5f, 0.5f, -0.5f);
+		glTexCoord2f(0, 0); glVertex3f(-0.5f, 0.5f, 0.5f);
+		glTexCoord2f(1, 0); glVertex3f(0.5f, 0.5f, 0.5f);
+		glTexCoord2f(1, 1); glVertex3f(0.5f, 0.5f, -0.5f);
+		glEnd();
+
+		// Render the bottom quad
+		glBindTexture(GL_TEXTURE_2D, textureID[5]);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(-0.5f, -0.5f, -0.5f);
+		glTexCoord2f(0, 1); glVertex3f(-0.5f, -0.5f, 0.5f);
+		glTexCoord2f(1, 1); glVertex3f(0.5f, -0.5f, 0.5f);
+		glTexCoord2f(1, 0); glVertex3f(0.5f, -0.5f, -0.5f);
+		glEnd();
+
+		// Restore enable bits and matrix
+		glDisable(GL_TEXTURE_2D);
+		glPopAttrib();
+		glPopMatrix();
+		glMatrixMode(savemode);
+	}
+}
 
 void drawTorus(double R, double r) {
     double s, t, x, y, z;
@@ -941,3 +1084,28 @@ void drawMetaball(double threshold, const double r, double(*metaballFunc)(double
 }
 
 
+Mat4f getModelViewMatrix()
+{
+	/**************************
+	**
+	**	GET THE OPENGL MODELVIEW MATRIX
+	**
+	**	Since OpenGL stores it's matricies in
+	**	column major order and our library
+	**	use row major order, we will need to
+	**	transpose what OpenGL gives us before returning.
+	**
+	**	Hint:  Use look up glGetFloatv or glGetDoublev
+	**	for how to get these values from OpenGL.
+	**
+	*******************************/
+
+	GLfloat m[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, m);
+	Mat4f matMV(m[0], m[1], m[2], m[3],
+		m[4], m[5], m[6], m[7],
+		m[8], m[9], m[10], m[11],
+		m[12], m[13], m[14], m[15]);
+
+	return matMV.transpose(); // convert to row major
+}

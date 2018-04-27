@@ -7,6 +7,7 @@
 
 #include <FL/gl.h>
 #include <cstdio>
+#include "mat.h"
 
 // ADDED
 class XYZ {
@@ -137,11 +138,14 @@ void drawTriangle( double x1, double y1, double z1,
 // ADDED!
 void drawTriangularPrism(int x, int y, int z);
 
+void drawSkybox();
+
 void drawTorus(double R, double r);
 
 double metaballFunc(double x0, double y0, double z0, double x, double y, double z);
 XYZ VertexInterp(double threshold, XYZ v1, XYZ v2, double val1, double val2);
 void triangulize(double threshold, Cell grid);
 void drawMetaball(double threshold, const double r, double(*metaballFunc)(double x, double y, double z));
+Mat4f getModelViewMatrix();
 
 #endif
