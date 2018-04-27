@@ -201,6 +201,17 @@ void DoggModel::draw()
             drawTextureBox(1, 1, 1);
         glPopMatrix();
 
+		// draw height field
+		if (VAL(HEIGHT_FIELD)) {
+			glPushMatrix();
+			glTranslated(0.5, 3.0, 1);
+			glRotated(-90, 1, 0, 0);
+			drawAxis();
+			drawHeightfield();
+			glPopMatrix();
+		}
+
+		setDiffuseColor(1.0f, 1.0f, 1.0f);
         // test metaball
         //glPushMatrix();
         //glTranslated(0, 5, 0);
@@ -1160,7 +1171,8 @@ int main()
 
     controls[WING_ANGLE] = ModelerControl("Wing Angle", -30, 30, 0.1f, 0);
     controls[CATMULL_ROM_TENSION] = ModelerControl("Catmull-Rom Tension", 0, 3, 0.01f, 1.5f);
-	controls[SKYBOX] = ModelerControl("SKYBOX", 0, 1, 1, 0);
+	controls[SKYBOX] = ModelerControl("Show SKYBOX", 0, 1, 1, 0);
+	controls[HEIGHT_FIELD] = ModelerControl("Show Height Field", 0, 1, 1, 0);
 
 	/* hook particle system to modeler app */
 	ParticleSystem * ps = new ParticleSystem();

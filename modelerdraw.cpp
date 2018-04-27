@@ -10,6 +10,8 @@
 #include "modelerapp.h"
 #include "modelerglobals.h"
 #include "bitmap.h"
+#include <vector>
+#include <map>
 // END
 
 enum {
@@ -630,6 +632,74 @@ void drawSkybox()
 		glPopMatrix();
 		glMatrixMode(savemode);
 	}
+}
+
+Vec3d getColorfromBMP(unsigned char * bitmap, int bwidth, int bheight, int x, int y) {
+	if (x >= 0 && y >= 0 && x < bwidth && y < bheight) {
+		unsigned char * pixel = bitmap + (x + y * bwidth) * 3;
+		unsigned char r = *pixel;
+		unsigned char g = *(pixel + 1);
+		unsigned char b = *(pixel + 2);
+		return Vec3d(r, g, b);
+	}
+	else {
+		printf("bmp access out of bound!\n");
+		return Vec3d(-1, -1, -1);
+	}
+}
+
+double getIntensityfromBMP(unsigned char * bitmap, int bwidth, int bheight, int x, int y) {
+	Vec3d color = getColorfromBMP(bitmap, bwidth, bheight, x, y);
+	return 0.299*color[0] + 0.587*color[1] + 0.114*color[2];
+}
+
+void drawHeightfield()
+{
+	// load file and store data
+	std::vector<Vec3d> heightmap;
+	std::vector<Vec3d> colormap;
+	int height = 0, width = 0;
+	unsigned char * hfIntensity = readBMP("hf_map1.bmp", width, height);
+	unsigned char * hfColor = readBMP("hf_map2.bmp", width, height);
+	if (!hfIntensity || !hfColor) { printf("fail to load height field BMP!\n"); return; }
+	for (unsigned int h = 0; h < height; ++h) {
+		for (unsigned int w = 0; w < width; ++w) {
+			Vec3d temp(2 * (double)w / (double)width, 2 * double(h) / double(height), getIntensityfromBMP(hfIntensity, width, height, w, h) / 255);
+			heightmap.push_back(temp);
+			colormap.push_back(getColorfromBMP(hfColor, width, height, w, h));
+		}
+	}
+
+	// generate triangle mesh
+	for (unsigned int h = 0; h < height - 1; ++h) {
+		for (unsigned int w = 0; w < width - 1; ++w) {
+			// this point set as the top left of the square
+			int TL = w + h * width;
+			int TR = TL + 1;
+			int BL = TL + width;
+			int BR = BL + 1;
+
+			// the top left triangle
+			Vec3d color = (colormap[TL] + colormap[TR] + colormap[BL]) / 3.0 /255.0;
+			//color = { 1.0f,0,0 };
+			//cout << color << "\n";
+			setDiffuseColor(color[0], color[1], color[2]);
+			drawTriangle(heightmap[TL][0], heightmap[TL][1], heightmap[TL][2],
+				heightmap[TR][0], heightmap[TR][1], heightmap[TR][2],
+				heightmap[BL][0], heightmap[BL][1], heightmap[BL][2]);
+
+			// the bottom right triangle
+			color = (colormap[BR] + colormap[TR] + colormap[BL]) / 3.0 / 255.0;
+			//color = { 0,1.0f,0 };
+			//cout << color << "\n";
+			setDiffuseColor(color[0], color[1], color[2]);
+			drawTriangle(heightmap[BR][0], heightmap[BR][1], heightmap[BR][2],
+				heightmap[TR][0], heightmap[TR][1], heightmap[TR][2],
+				heightmap[BL][0], heightmap[BL][1], heightmap[BL][2]);
+
+		}
+	}
+
 }
 
 void drawTorus(double R, double r) {
